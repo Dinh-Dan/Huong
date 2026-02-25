@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluate Submission - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <a href="javascript:history.back()" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 mb-6 font-medium">
+            &larr; Back
+        </a>
+
+        <div id="submission-detail" class="space-y-6">
+            <div class="text-center py-12"><div class="spinner mx-auto"></div></div>
+        </div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        if (!requireAuth('company')) throw new Error('Not authorized');
+
+        const subId = getQueryParam('id');
+        if (!subId) window.location.href = '/FE/company/applicants.html';
+
+        async function loadSubmission() {
+            try {
+                const s = await apiGet(`/submissions/${subId}`);
+
+                document.getElementById('submission-detail').innerHTML = `
+                    <!-- Student Info -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+                        <h2 class="text-xl font-bold mb-4">Student Information</h2>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div><span class="text-sm text-slate-500">Name</span><div class="font-medium">${s.full_name}</div></div>
+                            <div><span class="text-sm text-slate-500">Email</span><div class="font-medium">${s.email}</div></div>
+                            <div><span class="text-sm text-slate-500">University</span><div class="font-medium">${s.university || '-'}</div></div>
+                            <div><span class="text-sm text-slate-500">Phone</span><div class="font-medium">${s.phone || '-'}</div></div>
+                            <div><span class="text-sm text-slate-500">Skills</span><div class="font-medium">${s.skills || '-'}</div></div>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            ${s.cv_path ? `<a href="http://localhost:5000/uploads/cv/${s.cv_path}" target="_blank" class="text-blue-600 hover:underline text-sm">View CV</a>` : ''}
+                            ${s.student_portfolio ? `<a href="${s.student_portfolio}" target="_blank" class="text-blue-600 hover:underline text-sm">Portfolio</a>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Submission -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+                        <h2 class="text-xl font-bold mb-4">Submission for: ${s.task_title}</h2>
+                        <div class="mb-4">
+                            <span class="text-sm text-slate-500">Submitted: ${formatDateTime(s.submitted_at)}</span>
+                            &middot; ${statusBadge(s.status)}
+                        </div>
+                        ${s.file_path ? `<div class="mb-4"><a href="http://localhost:5000/uploads/submissions/${s.file_path}" target="_blank" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-blue-100 transition font-medium text-sm">Download File</a></div>` : ''}
+                        ${s.text_answer ? `<div class="mb-4"><h3 class="font-semibold text-sm text-slate-500 mb-1">Text Answer</h3><div class="bg-slate-50 p-4 rounded-xl whitespace-pre-wrap">${s.text_answer}</div></div>` : ''}
+                        ${s.portfolio_link ? `<div class="mb-4"><h3 class="font-semibold text-sm text-slate-500 mb-1">Portfolio Link</h3><a href="${s.portfolio_link}" target="_blank" class="text-blue-600 hover:underline">${s.portfolio_link}</a></div>` : ''}
+                    </div>
+
+                    <!-- Evaluation Form -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+                        <h2 class="text-xl font-bold mb-4">Evaluate</h2>
+                        <form id="evalForm" class="space-y-4">
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Score (0-100)</label>
+                                    <input type="number" id="score" min="0" max="100" value="${s.score || ''}" required
+                                        class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                                    <select id="status" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white">
+                                        <option value="reviewed" ${s.status === 'reviewed' ? 'selected' : ''}>Reviewed</option>
+                                        <option value="interested" ${s.status === 'interested' ? 'selected' : ''}>Accepted</option>
+                                        <option value="rejected" ${s.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Feedback</label>
+                                <textarea id="feedback" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none">${s.feedback || ''}</textarea>
+                            </div>
+                            <button type="submit" id="evalBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                                Save Evaluation
+                            </button>
+                        </form>
+                    </div>
+                `;
+
+                document.getElementById('evalForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const status = document.getElementById('status').value;
+
+                    if (status === 'rejected' && !confirm('Bạn có chắc muốn từ chối ứng viên này?')) return;
+
+                    const btn = document.getElementById('evalBtn');
+                    showLoading(btn);
+
+                    try {
+                        await apiPut('/evaluation/' + subId, {
+                            score: parseFloat(document.getElementById('score').value),
+                            feedback: document.getElementById('feedback').value,
+                            status: status
+                        });
+                        showToast('Đánh giá đã được lưu!', 'success');
+                        setTimeout(() => history.back(), 1000);
+                    } catch (err) {
+                        showToast(err.message || 'Evaluation failed', 'error');
+                    } finally {
+                        hideLoading(btn);
+                    }
+                });
+            } catch (err) {
+                document.getElementById('submission-detail').innerHTML = '<div class="text-center text-red-500 py-12">Submission not found</div>';
+            }
+        }
+
+        loadSubmission();
+    </script>
+</body>
+</html>

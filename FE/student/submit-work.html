@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Work - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <a href="javascript:history.back()" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 mb-6 font-medium">
+            &larr; Back
+        </a>
+
+        <div id="submitCard" class="bg-white rounded-xl border border-slate-200 shadow-sm p-8 relative">
+            <!-- Upload Overlay -->
+            <div id="uploadOverlay" class="absolute inset-0 bg-white/90 rounded-xl z-10 hidden flex flex-col items-center justify-center">
+                <div class="spinner mb-4" style="width:48px;height:48px;border-width:4px"></div>
+                <p class="text-lg font-semibold text-slate-700">Đang tải lên...</p>
+                <p class="text-sm text-slate-500 mt-1">Vui lòng không đóng trang này</p>
+            </div>
+
+            <h1 class="text-2xl font-bold mb-2">Submit Your Work</h1>
+            <p class="text-slate-500 mb-6" id="task-info">Loading task info...</p>
+
+            <form id="submitForm" class="space-y-5" enctype="multipart/form-data">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Upload File (PDF/ZIP) *</label>
+                    <input type="file" name="file" id="fileInput" accept=".pdf,.zip" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white">
+                    <p class="text-xs text-slate-400 mt-1">Max file size: 20MB</p>
+                    <p id="file-error" class="text-xs text-red-500 mt-1 hidden"></p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Text Answer (Optional)</label>
+                    <textarea name="text_answer" rows="5"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none"
+                        placeholder="Write your answer or notes here..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Portfolio Link (Optional)</label>
+                    <input type="url" name="portfolio_link"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none"
+                        placeholder="https://github.com/your-project">
+                </div>
+
+                <div class="flex items-start gap-2">
+                    <input type="checkbox" id="confirm" required class="mt-1">
+                    <label for="confirm" class="text-sm text-slate-600">
+                        I confirm that this is my own original work and I agree to the terms of submission.
+                    </label>
+                </div>
+
+                <div id="error-msg" class="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl p-4 hidden">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span id="error-text"></span>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                    Submit Work
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        if (!requireAuth('student')) throw new Error('Not authorized');
+
+        const taskId = getQueryParam('taskId');
+        if (!taskId) window.location.href = '/FE/browse-tasks.html';
+
+        const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+
+        // Load task info
+        async function loadTaskInfo() {
+            try {
+                const task = await apiGet(`/tasks/${taskId}`);
+                document.getElementById('task-info').textContent = `Submitting for: ${task.title} (${task.company_name})`;
+            } catch (err) {
+                document.getElementById('task-info').textContent = 'Task not found';
+            }
+        }
+
+        // File size validation on select
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileError = document.getElementById('file-error');
+            fileError.classList.add('hidden');
+            if (this.files[0] && this.files[0].size > MAX_FILE_SIZE) {
+                fileError.textContent = `File quá lớn (${(this.files[0].size / 1024 / 1024).toFixed(1)}MB). Tối đa 20MB.`;
+                fileError.classList.remove('hidden');
+                this.value = '';
+            }
+        });
+
+        function setFormDisabled(disabled) {
+            const form = document.getElementById('submitForm');
+            form.querySelectorAll('input, textarea, button, select').forEach(el => {
+                el.disabled = disabled;
+            });
+        }
+
+        document.getElementById('submitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const errorEl = document.getElementById('error-msg');
+            const overlay = document.getElementById('uploadOverlay');
+            errorEl.classList.add('hidden');
+
+            // Validate file size again
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files[0] && fileInput.files[0].size > MAX_FILE_SIZE) {
+                showToast('File quá lớn. Tối đa 20MB.', 'error');
+                return;
+            }
+
+            // Show overlay + disable form
+            overlay.classList.remove('hidden');
+            setFormDisabled(true);
+            showLoading(btn);
+
+            try {
+                const formData = new FormData(e.target);
+                await apiPost(`/submissions/${taskId}`, formData, true);
+
+                showToast('Nộp bài thành công!', 'success');
+
+                // Show success screen
+                document.getElementById('submitCard').innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce-once">
+                            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2">Nộp bài thành công!</h2>
+                        <p class="text-slate-500 mb-2">Bài làm của bạn đã được gửi đi thành công.</p>
+                        <p class="text-slate-400 text-sm mb-6">Doanh nghiệp sẽ xem xét và phản hồi sớm nhất có thể.</p>
+                        <p class="text-slate-400 text-sm mb-6">Tự động chuyển hướng sau <span id="countdown" class="font-bold text-blue-600">3</span>s...</p>
+                        <div class="flex gap-3 justify-center">
+                            <a href="/FE/student/my-submissions.html" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition">
+                                Xem bài nộp
+                            </a>
+                            <a href="/FE/browse-tasks.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-semibold transition">
+                                Xem thêm task
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                let seconds = 3;
+                const timer = setInterval(() => {
+                    seconds--;
+                    const el = document.getElementById('countdown');
+                    if (el) el.textContent = seconds;
+                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/FE/student/my-submissions.html'; }
+                }, 1000);
+            } catch (err) {
+                overlay.classList.add('hidden');
+                setFormDisabled(false);
+
+                const errorText = err.message || 'Nộp bài thất bại. Vui lòng thử lại.';
+                document.getElementById('error-text').textContent = errorText;
+                errorEl.classList.remove('hidden');
+                showToast(errorText, 'error');
+            } finally {
+                hideLoading(btn);
+            }
+        });
+
+        loadTaskInfo();
+    </script>
+</body>
+</html>

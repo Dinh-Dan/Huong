@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Ranking - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Task Ranking</h1>
+            <p class="text-slate-600">Leaderboard for your task applicants (Standard plan & above)</p>
+        </div>
+
+        <!-- Task Selector -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mb-8">
+            <div class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Select Task</label>
+                    <select id="taskSelector" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white" onchange="loadRanking()">
+                        <option value="">Loading tasks...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Sort By</label>
+                    <select id="sortBy" class="px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white" onchange="loadRanking()">
+                        <option value="score">Highest Score</option>
+                        <option value="date">Earliest Submission</option>
+                        <option value="tasks">Most Tasks Completed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Rank</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Student</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">University</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Score</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body" class="divide-y divide-slate-100">
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">Select a task to view rankings</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        if (!requireAuth('company')) throw new Error('Not authorized');
+
+        async function loadTasks() {
+            try {
+                const tasks = await apiGet('/tasks/company/mine');
+                const selector = document.getElementById('taskSelector');
+                selector.innerHTML = '<option value="">-- Select a task --</option>';
+                tasks.forEach(t => {
+                    selector.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+                });
+
+                const urlTaskId = getQueryParam('taskId');
+                if (urlTaskId) { selector.value = urlTaskId; loadRanking(); }
+            } catch (err) {
+                showToast('Failed to load tasks', 'error');
+            }
+        }
+
+        async function loadRanking() {
+            const taskId = document.getElementById('taskSelector').value;
+            const sort = document.getElementById('sortBy').value;
+            const tbody = document.getElementById('ranking-body');
+
+            if (!taskId) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">Select a task</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>';
+
+            try {
+                const rankings = await apiGet(`/leaderboard/task/${taskId}?sort=${sort}`);
+
+                if (rankings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No scored submissions yet</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = rankings.map(r => {
+                    const medal = r.rank === 1 ? '<span class="text-yellow-500 text-lg">&#x1F947;</span>' :
+                                  r.rank === 2 ? '<span class="text-gray-400 text-lg">&#x1F948;</span>' :
+                                  r.rank === 3 ? '<span class="text-amber-600 text-lg">&#x1F949;</span>' :
+                                  `<span class="text-slate-500 font-bold">#${r.rank}</span>`;
+                    return `
+                        <tr class="table-row">
+                            <td class="px-6 py-4">${medal}</td>
+                            <td class="px-6 py-4 font-medium">${r.full_name}</td>
+                            <td class="px-6 py-4 text-slate-600">${r.university || '-'}</td>
+                            <td class="px-6 py-4">${scoreBar(r.score)}</td>
+                            <td class="px-6 py-4">${statusBadge(r.status)}</td>
+                        </tr>`;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${err.message || 'Failed to load rankings. Standard plan required.'}</td></tr>`;
+            }
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>

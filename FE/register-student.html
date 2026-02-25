@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="login-gradient-bg min-h-screen flex items-center justify-center p-4">
+
+    <div class="floating-shape" style="width:400px;height:400px;background:#3b82f6;top:-100px;right:-100px;"></div>
+    <div class="floating-shape" style="width:300px;height:300px;background:#8b5cf6;bottom:-50px;left:-50px;animation-delay:5s;"></div>
+
+    <div class="glass-card rounded-2xl shadow-2xl w-full max-w-2xl p-8 relative z-10 my-8">
+        <div class="text-center mb-6">
+            <a href="/FE/index.html" class="inline-flex items-center gap-2 mb-4">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </div>
+                <span class="font-bold text-2xl text-slate-900">SkillRank</span>
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900">Student Registration</h1>
+            <p class="text-slate-500 mt-1">Create your account to start proving your skills</p>
+        </div>
+
+        <form id="registerForm" class="space-y-4" enctype="multipart/form-data">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
+                    <input type="text" name="full_name" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Email *</label>
+                    <input type="email" name="email" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="your@email.com">
+                    <span id="email-check" class="text-xs mt-1 hidden"></span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Password *</label>
+                    <input type="password" name="password" required minlength="6" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="Min 6 characters">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Phone *</label>
+                    <input type="tel" name="phone" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="0123456789">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">University *</label>
+                    <input type="text" name="university" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="Your University">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Major *</label>
+                    <input type="text" name="major" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="Computer Science">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Year of Study</label>
+                    <select name="year_of_study" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none bg-white">
+                        <option value="">Select year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                        <option value="5">Graduate</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Skills</label>
+                    <input type="text" name="skills" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="JavaScript, Python, ...">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Upload CV (PDF) *</label>
+                <input type="file" name="cv" accept=".pdf" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Portfolio Link</label>
+                    <input type="url" name="portfolio_link" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="https://portfolio.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">LinkedIn</label>
+                    <input type="url" name="linkedin" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="https://linkedin.com/in/...">
+                </div>
+            </div>
+
+            <div id="error-msg" class="text-red-500 text-sm hidden"></div>
+
+            <button type="submit" id="registerBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                Create Account
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-slate-500 mt-4">
+            Already have an account? <a href="/FE/login.html" class="text-blue-600 hover:underline font-medium">Login</a>
+            &nbsp;|&nbsp;
+            <a href="/FE/register-company.html" class="text-blue-600 hover:underline font-medium">Register as Company</a>
+        </p>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        // Email check
+        const emailInput = document.querySelector('input[name="email"]');
+        let emailTimeout;
+        emailInput.addEventListener('input', () => {
+            clearTimeout(emailTimeout);
+            emailTimeout = setTimeout(async () => {
+                const el = document.getElementById('email-check');
+                if (!emailInput.value) { el.classList.add('hidden'); return; }
+                try {
+                    const result = await apiGet(`/auth/check-email?email=${emailInput.value}&role=student`);
+                    el.classList.remove('hidden');
+                    if (result.available) {
+                        el.textContent = 'Email available';
+                        el.className = 'text-xs mt-1 text-green-600';
+                    } else {
+                        el.textContent = 'Email already taken';
+                        el.className = 'text-xs mt-1 text-red-500';
+                    }
+                } catch (e) { el.classList.add('hidden'); }
+            }, 500);
+        });
+
+        // Clear inline error when user edits field
+        document.querySelectorAll('#registerForm input, #registerForm select').forEach(field => {
+            field.addEventListener('input', () => {
+                field.classList.remove('border-red-400');
+                const errEl = field.parentElement.querySelector('.field-error');
+                if (errEl) errEl.remove();
+            });
+            field.addEventListener('change', () => {
+                field.classList.remove('border-red-400');
+                const errEl = field.parentElement.querySelector('.field-error');
+                if (errEl) errEl.remove();
+            });
+        });
+
+        function clearFieldErrors() {
+            document.querySelectorAll('.field-error').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-400').forEach(el => el.classList.remove('border-red-400'));
+        }
+
+        function showFieldError(fieldName, message) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (!field) return false;
+            field.classList.add('border-red-400');
+            const errSpan = document.createElement('span');
+            errSpan.className = 'field-error text-red-500 text-xs mt-1 block';
+            errSpan.textContent = message;
+            field.parentElement.appendChild(errSpan);
+            return true;
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const errorEl = document.getElementById('error-msg');
+            errorEl.classList.add('hidden');
+            clearFieldErrors();
+            showLoading(btn);
+
+            try {
+                const formData = new FormData(e.target);
+                const data = await apiPost('/auth/register/student', formData, true);
+
+                setAuth(data.token, data.user);
+
+                // Show success screen
+                document.querySelector('.glass-card').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2">Đăng ký thành công!</h2>
+                        <p class="text-slate-500 mb-6">Tài khoản sinh viên của bạn đã được tạo.</p>
+                        <p class="text-slate-400 text-sm mb-4">Tự động chuyển hướng sau <span id="countdown">3</span>s...</p>
+                        <a href="/FE/student/dashboard.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                            Tiếp tục
+                        </a>
+                    </div>
+                `;
+
+                let seconds = 3;
+                const countdownEl = document.getElementById('countdown');
+                const timer = setInterval(() => {
+                    seconds--;
+                    if (countdownEl) countdownEl.textContent = seconds;
+                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/FE/student/dashboard.html'; }
+                }, 1000);
+            } catch (err) {
+                let firstErrorField = null;
+
+                if (err.errors && Array.isArray(err.errors)) {
+                    err.errors.forEach(e => {
+                        const fieldName = e.path || e.param;
+                        if (fieldName) {
+                            showFieldError(fieldName, e.msg);
+                            if (!firstErrorField) firstErrorField = document.querySelector(`[name="${fieldName}"]`);
+                        }
+                    });
+                } else if (err.message) {
+                    if (err.message.toLowerCase().includes('email')) {
+                        showFieldError('email', err.message);
+                        firstErrorField = document.querySelector('[name="email"]');
+                    } else {
+                        errorEl.textContent = err.message;
+                        errorEl.classList.remove('hidden');
+                    }
+                } else {
+                    errorEl.textContent = 'Đăng ký thất bại. Vui lòng thử lại.';
+                    errorEl.classList.remove('hidden');
+                }
+
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstErrorField.focus();
+                }
+            } finally {
+                hideLoading(btn);
+            }
+        });
+
+        redirectIfLoggedIn();
+    </script>
+</body>
+</html>

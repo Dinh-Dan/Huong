@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Detail - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <a href="/FE/browse-tasks.html" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 mb-6 font-medium">
+            &larr; Back to Tasks
+        </a>
+
+        <div id="task-content" class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+            <div class="text-center py-12"><div class="spinner mx-auto"></div></div>
+        </div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        const taskId = getQueryParam('id');
+        if (!taskId) window.location.href = '/FE/browse-tasks.html';
+
+        async function loadTask() {
+            try {
+                const task = await apiGet(`/tasks/${taskId}`);
+
+                document.title = `${task.title} - SkillRank`;
+
+                document.getElementById('task-content').innerHTML = `
+                    <div class="flex items-center gap-4 mb-6 min-w-0">
+                        <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 font-bold text-xl shrink-0">
+                            ${task.company_name.charAt(0)}
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-bold break-words">${task.title}</h1>
+                            <div class="text-slate-500 truncate">${task.company_name} ${task.company_website ? `&middot; <a href="${task.company_website}" target="_blank" class="text-blue-600 hover:underline">Website</a>` : ''}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        ${difficultyBadge(task.difficulty)}
+                        ${statusBadge(task.status)}
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium truncate max-w-xs">${task.industry || 'N/A'}</span>
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium truncate max-w-xs">${task.estimated_time || 'N/A'}</span>
+                    </div>
+
+                    <div class="grid sm:grid-cols-3 gap-4 mb-8 p-4 bg-slate-50 rounded-xl">
+                        <div class="text-center">
+                            <div class="text-sm text-slate-500">Deadline</div>
+                            <div class="font-semibold">${formatDate(task.deadline)}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm text-slate-500">Submissions</div>
+                            <div class="font-semibold">${task.current_submissions} / ${task.max_submissions}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm text-slate-500">Difficulty</div>
+                            <div class="font-semibold capitalize">${task.difficulty}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 overflow-hidden">
+                        <h2 class="text-lg font-bold mb-3">Description</h2>
+                        <div class="text-slate-700 whitespace-pre-wrap break-words overflow-wrap-anywhere">${task.description}</div>
+                    </div>
+
+                    ${task.expected_output ? `
+                    <div class="mb-6 overflow-hidden">
+                        <h2 class="text-lg font-bold mb-3">Expected Output</h2>
+                        <div class="text-slate-700 whitespace-pre-wrap break-words overflow-wrap-anywhere bg-slate-50 p-4 rounded-xl">${task.expected_output}</div>
+                    </div>
+                    ` : ''}
+
+                    <div class="flex gap-4 pt-6 border-t border-slate-200">
+                        ${isLoggedIn() && getUser().role === 'student' ? `
+                            <a href="/FE/student/submit-work.html?taskId=${task.id}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                                Submit Work
+                            </a>
+                        ` : !isLoggedIn() ? `
+                            <a href="/FE/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                                Login to Submit
+                            </a>
+                        ` : ''}
+                        <a href="/FE/browse-tasks.html" class="bg-white hover:bg-slate-50 text-slate-700 px-8 py-3 rounded-xl font-semibold transition border border-slate-200">
+                            Back to Tasks
+                        </a>
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById('task-content').innerHTML = '<div class="text-center text-red-500 py-12">Task not found</div>';
+            }
+        }
+
+        loadTask();
+    </script>
+</body>
+</html>

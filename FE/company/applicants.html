@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicants - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Applicants Management</h1>
+            <p class="text-slate-600">Review and evaluate student submissions</p>
+        </div>
+
+        <!-- Task Selector -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mb-8">
+            <label class="block text-sm font-medium text-slate-700 mb-2">Select Task</label>
+            <select id="taskSelector" class="w-full md:w-1/2 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white" onchange="loadSubmissions()">
+                <option value="">Loading tasks...</option>
+            </select>
+        </div>
+
+        <!-- Submissions Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead id="table-head" class="bg-slate-50 border-b border-slate-200">
+                    </thead>
+                    <tbody id="submissions-body" class="divide-y divide-slate-100">
+                        <tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">Select a task to view submissions</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluate Modal -->
+    <div id="evalModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <h2 class="text-xl font-bold mb-4">Evaluate Submission</h2>
+            <p id="evalStudent" class="text-slate-500 mb-4"></p>
+            <form id="evalForm" class="space-y-4">
+                <input type="hidden" id="evalSubId">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Score (0-100)</label>
+                    <input type="number" id="evalScore" min="0" max="100" required class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Feedback</label>
+                    <textarea id="evalFeedback" rows="3" class="w-full px-4 py-3 border border-slate-300 rounded-xl input-field focus:outline-none" placeholder="Provide feedback..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                    <select id="evalStatus" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none bg-white">
+                        <option value="reviewed">Reviewed</option>
+                        <option value="interested">Accepted</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" id="evalBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Save</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-semibold transition">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        if (!requireAuth('company')) throw new Error('Not authorized');
+
+        // Load tasks
+        async function loadTasks() {
+            try {
+                const tasks = await apiGet('/tasks/company/mine');
+                const selector = document.getElementById('taskSelector');
+                selector.innerHTML = '<option value="all">All Tasks</option>';
+                tasks.forEach(t => {
+                    selector.innerHTML += `<option value="${t.id}">${t.title} (${t.submission_count || 0} submissions)</option>`;
+                });
+
+                // Auto-select if taskId in URL, otherwise default to "all"
+                const urlTaskId = getQueryParam('taskId');
+                if (urlTaskId) {
+                    selector.value = urlTaskId;
+                }
+                loadSubmissions();
+            } catch (err) {
+                showToast('Failed to load tasks', 'error');
+            }
+        }
+
+        async function loadSubmissions() {
+            const taskId = document.getElementById('taskSelector').value;
+            const tbody = document.getElementById('submissions-body');
+
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>';
+
+            try {
+                // If "all" selected, fetch all company submissions; otherwise fetch per task
+                const isAll = taskId === 'all';
+                const endpoint = isAll ? '/submissions/company/all' : `/submissions/task/${taskId}`;
+                const submissions = await apiGet(endpoint);
+
+                // Dynamic table header
+                const thead = document.getElementById('table-head');
+                const thClass = 'text-left px-6 py-4 text-sm font-semibold text-slate-600';
+                thead.innerHTML = `<tr>
+                    <th class="${thClass}">Student</th>
+                    ${isAll ? `<th class="${thClass}">Task</th>` : ''}
+                    <th class="${thClass}">University</th>
+                    <th class="${thClass}">Date</th>
+                    <th class="${thClass}">File</th>
+                    <th class="${thClass}">Score</th>
+                    <th class="${thClass}">Status</th>
+                    <th class="${thClass}">Actions</th>
+                </tr>`;
+
+                const colSpan = isAll ? 8 : 7;
+
+                if (submissions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="px-6 py-12 text-center text-slate-500">No submissions yet</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = submissions.map(s => {
+                    const escapedName = s.full_name.replace(/'/g, "\\'");
+                    const escapedFeedback = (s.feedback || '').replace(/'/g, "\\'");
+                    return `
+                    <tr class="table-row">
+                        <td class="px-6 py-4">
+                            <div class="font-medium">${s.full_name}</div>
+                            <div class="text-xs text-slate-500">${s.email}</div>
+                        </td>
+                        ${isAll ? `<td class="px-6 py-4 text-sm text-slate-700 font-medium">${s.task_title || '-'}</td>` : ''}
+                        <td class="px-6 py-4 text-slate-600 text-sm">${s.university || '-'}</td>
+                        <td class="px-6 py-4 text-slate-600 text-sm">${formatDate(s.submitted_at)}</td>
+                        <td class="px-6 py-4">
+                            ${s.file_path ? `<a href="http://localhost:5000/uploads/submissions/${s.file_path}" target="_blank" class="text-blue-600 hover:underline text-sm">Download</a>` : '-'}
+                            ${s.student_portfolio ? `<br><a href="${s.student_portfolio}" target="_blank" class="text-blue-600 hover:underline text-xs">Portfolio</a>` : ''}
+                        </td>
+                        <td class="px-6 py-4">${s.score !== null ? scoreBar(s.score) : '<span class="text-slate-400">-</span>'}</td>
+                        <td class="px-6 py-4">${statusBadge(s.status)}</td>
+                        <td class="px-6 py-4">
+                            <button onclick="openEval(${s.id}, '${escapedName}', ${s.score}, '${escapedFeedback}', '${s.status}')"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">
+                                Evaluate
+                            </button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-red-500">Failed to load submissions</td></tr>';
+                showToast('Không thể tải danh sách ứng viên', 'error');
+            }
+        }
+
+        function openEval(subId, name, score, feedback, status) {
+            document.getElementById('evalSubId').value = subId;
+            document.getElementById('evalStudent').textContent = `Student: ${name}`;
+            document.getElementById('evalScore').value = score || '';
+            document.getElementById('evalFeedback').value = feedback || '';
+            document.getElementById('evalStatus').value = status === 'pending' ? 'reviewed' : status;
+            document.getElementById('evalModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('evalModal').classList.add('hidden');
+        }
+
+        document.getElementById('evalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const status = document.getElementById('evalStatus').value;
+
+            if (status === 'rejected' && !confirm('Bạn có chắc muốn từ chối ứng viên này?')) return;
+
+            const btn = document.getElementById('evalBtn');
+            showLoading(btn);
+
+            try {
+                const subId = document.getElementById('evalSubId').value;
+                await apiPut(`/evaluation/${subId}`, {
+                    score: parseFloat(document.getElementById('evalScore').value),
+                    feedback: document.getElementById('evalFeedback').value,
+                    status: status
+                });
+
+                showToast('Đánh giá đã được lưu!', 'success');
+                closeModal();
+                loadSubmissions();
+            } catch (err) {
+                showToast(err.message || 'Evaluation failed', 'error');
+            } finally {
+                hideLoading(btn);
+            }
+        });
+
+        loadTasks();
+    </script>
+</body>
+</html>

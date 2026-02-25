@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Tasks - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Browse Tasks</h1>
+            <p class="text-slate-600">Explore real-world tasks from top companies</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 mb-8">
+            <div class="grid md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Search</label>
+                    <input type="text" id="search" placeholder="Search tasks..."
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg input-field focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Industry</label>
+                    <select id="industry" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none bg-white">
+                        <option value="">All Industries</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="E-commerce">E-commerce</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Difficulty</label>
+                    <select id="difficulty" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none bg-white">
+                        <option value="">All Levels</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="loadTasks()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-semibold transition">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div id="tasks-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="text-center py-12 col-span-full">
+                <div class="spinner mx-auto mb-4"></div>
+                <p class="text-slate-500">Loading tasks...</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center gap-2 mt-8"></div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        let currentPage = 1;
+
+        async function loadTasks(page = 1) {
+            currentPage = page;
+            const search = document.getElementById('search').value;
+            const industry = document.getElementById('industry').value;
+            const difficulty = document.getElementById('difficulty').value;
+
+            const params = new URLSearchParams({ page, limit: 12 });
+            if (search) params.append('search', search);
+            if (industry) params.append('industry', industry);
+            if (difficulty) params.append('difficulty', difficulty);
+
+            try {
+                const data = await apiGet(`/tasks?${params}`);
+                renderTasks(data.tasks);
+                renderPagination(data.pagination);
+            } catch (err) {
+                document.getElementById('tasks-grid').innerHTML =
+                    '<p class="text-center text-red-500 col-span-full py-12">Failed to load tasks</p>';
+            }
+        }
+
+        function renderTasks(tasks) {
+            const grid = document.getElementById('tasks-grid');
+            if (tasks.length === 0) {
+                grid.innerHTML = '<p class="text-center text-slate-500 col-span-full py-12">No tasks found</p>';
+                return;
+            }
+
+            grid.innerHTML = tasks.map(task => `
+                <div class="bg-white rounded-xl p-6 border border-slate-200 card-hover overflow-hidden">
+                    <div class="flex items-center gap-3 mb-4 min-w-0">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold text-sm shrink-0">
+                            ${task.company_name ? task.company_name.charAt(0) : 'C'}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-medium text-sm truncate">${task.company_name}</div>
+                            <div class="text-xs text-slate-500 truncate">${task.industry || ''}</div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 line-clamp-2 break-words">${task.title}</h3>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2 break-words">${truncate(task.description, 100)}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${difficultyBadge(task.difficulty)}
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">${task.estimated_time || 'N/A'}</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs text-slate-500 shrink-0">Deadline: ${formatDate(task.deadline)}</span>
+                        <a href="/FE/student/task-detail.html?id=${task.id}" class="text-blue-600 hover:text-blue-700 text-sm font-semibold shrink-0 ml-2">
+                            View Details &rarr;
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            const el = document.getElementById('pagination');
+            if (pagination.totalPages <= 1) { el.innerHTML = ''; return; }
+
+            let html = '';
+            for (let i = 1; i <= pagination.totalPages; i++) {
+                html += `<button onclick="loadTasks(${i})"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition ${i === pagination.page ? 'bg-blue-600 text-white' : 'bg-white border border-slate-300 hover:bg-slate-50'}">
+                    ${i}
+                </button>`;
+            }
+            el.innerHTML = html;
+        }
+
+        // Search on Enter
+        document.getElementById('search').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadTasks();
+        });
+
+        loadTasks();
+    </script>
+</body>
+</html>

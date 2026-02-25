@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Leaderboard - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Global Leaderboard</h1>
+                <p class="text-slate-600">Top candidates across the entire platform (Premium plan)</p>
+            </div>
+            <button onclick="exportCSV()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition">
+                Export CSV
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mb-8">
+            <div class="grid md:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">University</label>
+                    <input type="text" id="filterUniv" placeholder="Filter by university"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg input-field focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Skill</label>
+                    <input type="text" id="filterSkill" placeholder="e.g., JavaScript"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg input-field focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Year of Study</label>
+                    <select id="filterYear" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none bg-white">
+                        <option value="">All Years</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                        <option value="5">Graduate</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Min Score</label>
+                    <input type="number" id="filterScoreMin" min="0" max="100" placeholder="0"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg input-field focus:outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="loadLeaderboard()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-semibold transition">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Rank</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Name</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">University</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Avg Score</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Tasks Completed</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-slate-600">Accepted Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body" class="divide-y divide-slate-100">
+                        <tr><td colspan="6" class="px-6 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+    </div>
+
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
+    <script>
+        if (!requireAuth('company')) throw new Error('Not authorized');
+
+        let currentPage = 1;
+
+        async function loadLeaderboard(page = 1) {
+            currentPage = page;
+            const params = new URLSearchParams({ page, limit: 50 });
+
+            const univ = document.getElementById('filterUniv').value;
+            const skill = document.getElementById('filterSkill').value;
+            const year = document.getElementById('filterYear').value;
+            const scoreMin = document.getElementById('filterScoreMin').value;
+
+            if (univ) params.append('university', univ);
+            if (skill) params.append('skill', skill);
+            if (year) params.append('year_of_study', year);
+            if (scoreMin) params.append('score_min', scoreMin);
+
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>';
+
+            try {
+                const data = await apiGet(`/leaderboard/global?${params}`);
+
+                if (data.students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500">No students found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.students.map(s => {
+                    const medal = s.rank === 1 ? '<span class="text-yellow-500 text-lg">&#x1F947;</span>' :
+                                  s.rank === 2 ? '<span class="text-gray-400 text-lg">&#x1F948;</span>' :
+                                  s.rank === 3 ? '<span class="text-amber-600 text-lg">&#x1F949;</span>' :
+                                  `<span class="text-slate-500 font-bold">#${s.rank}</span>`;
+                    return `
+                        <tr class="table-row">
+                            <td class="px-6 py-4">${medal}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-medium">${s.full_name}</div>
+                                <div class="text-xs text-slate-500">${s.skills || ''}</div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">${s.university || '-'}</td>
+                            <td class="px-6 py-4">${scoreBar(s.average_score)}</td>
+                            <td class="px-6 py-4 text-center font-semibold">${s.total_submissions}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">${s.interested_count}</span>
+                            </td>
+                        </tr>`;
+                }).join('');
+
+                // Pagination
+                const pag = data.pagination;
+                const pagEl = document.getElementById('pagination');
+                if (pag.totalPages <= 1) { pagEl.innerHTML = ''; return; }
+                let html = '';
+                for (let i = 1; i <= pag.totalPages; i++) {
+                    html += `<button onclick="loadLeaderboard(${i})" class="px-4 py-2 rounded-lg text-sm font-medium transition ${i === pag.page ? 'bg-blue-600 text-white' : 'bg-white border border-slate-300 hover:bg-slate-50'}">${i}</button>`;
+                }
+                pagEl.innerHTML = html;
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">${err.message || 'Premium plan required to access global leaderboard.'}</td></tr>`;
+            }
+        }
+
+        async function exportCSV() {
+            try {
+                const params = new URLSearchParams();
+                const univ = document.getElementById('filterUniv').value;
+                const skill = document.getElementById('filterSkill').value;
+                if (univ) params.append('university', univ);
+                if (skill) params.append('skill', skill);
+
+                const token = getToken();
+                const response = await fetch(`http://localhost:5000/api/leaderboard/export-csv?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw err;
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'skillrank-candidates.csv';
+                a.click();
+                window.URL.revokeObjectURL(url);
+                showToast('CSV exported!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Export failed. Premium plan required.', 'error');
+            }
+        }
+
+        loadLeaderboard();
+    </script>
+</body>
+</html>
