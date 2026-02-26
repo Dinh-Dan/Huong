@@ -99,3 +99,25 @@ INSERT INTO subscription_plans (plan_name, task_limit, has_task_leaderboard, has
 ('standard', 5, TRUE, FALSE, FALSE, FALSE, 49.99, 'Phù hợp doanh nghiệp vừa - 5 task/tháng + Task Leaderboard'),
 ('premium', 999, TRUE, TRUE, TRUE, TRUE, 99.99, 'Phù hợp doanh nghiệp lớn - Không giới hạn + Full Leaderboard + CSV Export')
 ON DUPLICATE KEY UPDATE plan_name = plan_name;
+
+-- Admins table
+CREATE TABLE IF NOT EXISTS admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  full_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Upgrade requests table (company requests to upgrade subscription)
+CREATE TABLE IF NOT EXISTS upgrade_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  company_id INT NOT NULL,
+  current_plan ENUM('basic','standard','premium') NOT NULL,
+  requested_plan ENUM('basic','standard','premium') NOT NULL,
+  status ENUM('pending','approved','rejected') DEFAULT 'pending',
+  admin_note TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  processed_at TIMESTAMP NULL,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+);

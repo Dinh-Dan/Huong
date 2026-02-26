@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SkillRank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link:hover { background: rgba(59,130,246,0.08); }
+        .sidebar-link.active { background: linear-gradient(90deg, rgba(59,130,246,0.12) 0%, transparent 100%); border-left: 3px solid #3b82f6; color: #3b82f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .plan-bar { height: 32px; border-radius: 6px; transition: width 0.6s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-slate-200 fixed h-full z-40 flex flex-col">
+            <div class="p-6 border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm">SkillRank</div>
+                        <div class="text-xs text-slate-500">Admin Panel</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 py-4">
+                <button onclick="switchTab('dashboard')" class="sidebar-link active w-full text-left px-6 py-3 text-sm font-medium flex items-center gap-3" data-tab="dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Dashboard
+                </button>
+                <button onclick="switchTab('companies')" class="sidebar-link w-full text-left px-6 py-3 text-sm font-medium flex items-center gap-3" data-tab="companies">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    Companies
+                </button>
+                <button onclick="switchTab('students')" class="sidebar-link w-full text-left px-6 py-3 text-sm font-medium flex items-center gap-3" data-tab="students">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    Students
+                </button>
+                <button onclick="switchTab('payments')" class="sidebar-link w-full text-left px-6 py-3 text-sm font-medium flex items-center gap-3 relative" data-tab="payments">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Payment Requests
+                    <span id="pending-badge" class="hidden absolute right-4 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-200">
+                <div class="flex items-center gap-3 mb-3 px-2">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold" id="admin-avatar">A</div>
+                    <div class="text-sm font-medium" id="admin-name">Admin</div>
+                </div>
+                <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Total Students</span>
+                            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold" id="stat-students">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Total Companies</span>
+                            <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold" id="stat-companies">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Total Tasks</span>
+                            <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold" id="stat-tasks">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Total Submissions</span>
+                            <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold" id="stat-submissions">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Pending Requests</span>
+                            <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-yellow-600" id="stat-pending">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-500">Monthly Revenue</span>
+                            <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-emerald-600">$<span id="stat-revenue">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Plan Distribution -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-8">
+                    <h2 class="text-lg font-bold mb-4">Subscription Distribution</h2>
+                    <div id="plan-chart" class="space-y-3"></div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <div class="p-4 border-b border-slate-200 font-bold text-sm">Recent Companies</div>
+                        <div id="recent-companies" class="divide-y divide-slate-100"></div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <div class="p-4 border-b border-slate-200 font-bold text-sm">Recent Students</div>
+                        <div id="recent-students" class="divide-y divide-slate-100"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Companies Tab -->
+            <div id="tab-companies" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Companies</h1>
+                    <div class="flex gap-3">
+                        <input type="text" id="company-search" placeholder="Search by name or email..."
+                            class="px-4 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 w-64">
+                        <button onclick="loadCompanies()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Search</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">ID</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Company</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Email</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Industry</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Plan</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Tasks</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Created</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="companies-table" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="companies-pagination" class="p-4 border-t border-slate-200 flex justify-between items-center text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Students Tab -->
+            <div id="tab-students" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Students</h1>
+                    <div class="flex gap-3">
+                        <input type="text" id="student-search" placeholder="Search by name or email..."
+                            class="px-4 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 w-64">
+                        <button onclick="loadStudents()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Search</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">ID</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Name</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Email</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">University</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Avg Score</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Submissions</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Created</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="students-pagination" class="p-4 border-t border-slate-200 flex justify-between items-center text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Payments Tab -->
+            <div id="tab-payments" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Payment / Upgrade Requests</h1>
+                    <div class="flex gap-2">
+                        <button onclick="filterRequests('')" class="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 hover:bg-slate-100 transition filter-btn active-filter">All</button>
+                        <button onclick="filterRequests('pending')" class="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 hover:bg-slate-100 transition filter-btn">Pending</button>
+                        <button onclick="filterRequests('approved')" class="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 hover:bg-slate-100 transition filter-btn">Approved</button>
+                        <button onclick="filterRequests('rejected')" class="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 hover:bg-slate-100 transition filter-btn">Rejected</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">ID</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Company</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Email</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Current Plan</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Requested Plan</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Status</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Date</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-slate-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-table" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="payments-pagination" class="p-4 border-t border-slate-200 flex justify-between items-center text-sm"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 relative">
+            <h3 class="text-lg font-bold mb-2" id="modal-title">Confirm</h3>
+            <p class="text-slate-600 text-sm mb-4" id="modal-message"></p>
+            <div id="modal-note-wrap" class="mb-4 hidden">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Note (optional)</label>
+                <textarea id="modal-note" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-semibold transition">Cancel</button>
+                <button id="modal-confirm-btn" class="flex-1 py-2.5 rounded-xl font-semibold transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentPaymentFilter = '';
+        let companiesPage = 1;
+        let studentsPage = 1;
+        let paymentsPage = 1;
+
+        // --- Auth ---
+        function getAdminToken() { return localStorage.getItem('admin_token'); }
+        function getAdminUser() {
+            const u = localStorage.getItem('admin_user');
+            return u ? JSON.parse(u) : null;
+        }
+
+        if (!getAdminToken()) {
+            window.location.href = '/admin-huong/login.html';
+        }
+
+        const adminUser = getAdminUser();
+        if (adminUser) {
+            document.getElementById('admin-name').textContent = adminUser.name || adminUser.username;
+            document.getElementById('admin-avatar').textContent = (adminUser.name || 'A')[0].toUpperCase();
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            window.location.href = '/admin-huong/login.html';
+        }
+
+        async function adminFetch(endpoint, options = {}) {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAdminToken()}`,
+                    ...(options.headers || {})
+                }
+            });
+            if (res.status === 401 || res.status === 403) {
+                logout();
+                return null;
+            }
+            return res.json();
+        }
+
+        // --- Tab Switching ---
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'companies') loadCompanies();
+            if (tab === 'students') loadStudents();
+            if (tab === 'payments') loadPayments();
+        }
+
+        // --- Helpers ---
+        function formatDate(d) {
+            if (!d) return '-';
+            return new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function planBadge(plan) {
+            const colors = { basic: 'bg-green-100 text-green-700', standard: 'bg-blue-100 text-blue-700', premium: 'bg-purple-100 text-purple-700' };
+            return `<span class="${colors[plan] || 'bg-slate-100 text-slate-700'} px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize">${plan}</span>`;
+        }
+
+        function statusBadge(status) {
+            const colors = { pending: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
+            return `<span class="${colors[status] || 'bg-slate-100'} px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize">${status}</span>`;
+        }
+
+        function showToast(msg, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function renderPagination(containerId, pagination, loadFn, pageVar) {
+            const el = document.getElementById(containerId);
+            if (!pagination || pagination.pages <= 1) { el.innerHTML = ''; return; }
+            el.innerHTML = `
+                <span class="text-slate-500">Showing page ${pagination.page} of ${pagination.pages} (${pagination.total} total)</span>
+                <div class="flex gap-2">
+                    <button onclick="${loadFn}(${pagination.page - 1})" ${pagination.page <= 1 ? 'disabled' : ''} class="px-3 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
+                    <button onclick="${loadFn}(${pagination.page + 1})" ${pagination.page >= pagination.pages ? 'disabled' : ''} class="px-3 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                </div>`;
+        }
+
+        // --- Dashboard ---
+        async function loadDashboard() {
+            const data = await adminFetch('/admin/dashboard');
+            if (!data) return;
+
+            document.getElementById('stat-students').textContent = data.total_students;
+            document.getElementById('stat-companies').textContent = data.total_companies;
+            document.getElementById('stat-tasks').textContent = data.total_tasks;
+            document.getElementById('stat-submissions').textContent = data.total_submissions;
+            document.getElementById('stat-pending').textContent = data.pending_requests;
+            document.getElementById('stat-revenue').textContent = data.revenue.toFixed(2);
+
+            // Update pending badge
+            const badge = document.getElementById('pending-badge');
+            if (data.pending_requests > 0) {
+                badge.textContent = data.pending_requests;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Plan chart
+            const planColors = { basic: '#10b981', standard: '#3b82f6', premium: '#8b5cf6' };
+            const planLabels = { basic: 'Basic (Free)', standard: 'Standard ($49.99)', premium: 'Premium ($99.99)' };
+            const total = data.total_companies || 1;
+            const chartEl = document.getElementById('plan-chart');
+
+            if (data.plans_distribution.length === 0) {
+                chartEl.innerHTML = '<div class="text-slate-400 text-sm">No data</div>';
+            } else {
+                chartEl.innerHTML = data.plans_distribution.map(p => {
+                    const pct = Math.round((p.count / total) * 100);
+                    return `
+                        <div class="flex items-center gap-4">
+                            <div class="w-32 text-sm font-medium text-slate-600">${planLabels[p.subscription_plan] || p.subscription_plan}</div>
+                            <div class="flex-1 bg-slate-100 rounded-lg overflow-hidden">
+                                <div class="plan-bar text-white text-xs font-semibold flex items-center px-3" style="width:${Math.max(pct, 8)}%;background:${planColors[p.subscription_plan] || '#94a3b8'}">${p.count} (${pct}%)</div>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+
+            // Recent companies
+            const compEl = document.getElementById('recent-companies');
+            compEl.innerHTML = data.recent_companies.length === 0 ? '<div class="p-4 text-sm text-slate-400">No companies yet</div>' :
+                data.recent_companies.map(c => `
+                    <div class="p-3 flex items-center justify-between hover:bg-slate-50">
+                        <div>
+                            <div class="font-medium text-sm">${c.company_name}</div>
+                            <div class="text-xs text-slate-500">${c.email}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${planBadge(c.subscription_plan)}
+                            <span class="text-xs text-slate-400">${formatDate(c.created_at)}</span>
+                        </div>
+                    </div>`).join('');
+
+            // Recent students
+            const stuEl = document.getElementById('recent-students');
+            stuEl.innerHTML = data.recent_students.length === 0 ? '<div class="p-4 text-sm text-slate-400">No students yet</div>' :
+                data.recent_students.map(s => `
+                    <div class="p-3 flex items-center justify-between hover:bg-slate-50">
+                        <div>
+                            <div class="font-medium text-sm">${s.full_name}</div>
+                            <div class="text-xs text-slate-500">${s.email}</div>
+                        </div>
+                        <div class="text-xs text-slate-400">${s.university || '-'}</div>
+                    </div>`).join('');
+        }
+
+        // --- Companies ---
+        async function loadCompanies(page = 1) {
+            companiesPage = page;
+            const search = document.getElementById('company-search').value;
+            const data = await adminFetch(`/admin/companies?page=${page}&limit=15&search=${encodeURIComponent(search)}`);
+            if (!data) return;
+
+            document.getElementById('companies-table').innerHTML = data.data.length === 0 ?
+                '<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">No companies found</td></tr>' :
+                data.data.map(c => `
+                    <tr class="table-row">
+                        <td class="px-4 py-3">${c.id}</td>
+                        <td class="px-4 py-3 font-medium">${c.company_name}</td>
+                        <td class="px-4 py-3 text-slate-600">${c.email}</td>
+                        <td class="px-4 py-3">${c.industry || '-'}</td>
+                        <td class="px-4 py-3">${planBadge(c.subscription_plan)}</td>
+                        <td class="px-4 py-3">${c.tasks_used}/${c.task_limit}</td>
+                        <td class="px-4 py-3 text-slate-500">${formatDate(c.created_at)}</td>
+                        <td class="px-4 py-3">
+                            <button onclick="confirmDelete('company', ${c.id}, '${c.company_name.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                        </td>
+                    </tr>`).join('');
+
+            renderPagination('companies-pagination', data.pagination, 'loadCompanies');
+        }
+
+        document.getElementById('company-search').addEventListener('keypress', e => { if (e.key === 'Enter') loadCompanies(); });
+
+        // --- Students ---
+        async function loadStudents(page = 1) {
+            studentsPage = page;
+            const search = document.getElementById('student-search').value;
+            const data = await adminFetch(`/admin/students?page=${page}&limit=15&search=${encodeURIComponent(search)}`);
+            if (!data) return;
+
+            document.getElementById('students-table').innerHTML = data.data.length === 0 ?
+                '<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">No students found</td></tr>' :
+                data.data.map(s => `
+                    <tr class="table-row">
+                        <td class="px-4 py-3">${s.id}</td>
+                        <td class="px-4 py-3 font-medium">${s.full_name}</td>
+                        <td class="px-4 py-3 text-slate-600">${s.email}</td>
+                        <td class="px-4 py-3">${s.university || '-'}</td>
+                        <td class="px-4 py-3">${s.average_score ? parseFloat(s.average_score).toFixed(1) : '-'}</td>
+                        <td class="px-4 py-3">${s.total_submissions}</td>
+                        <td class="px-4 py-3 text-slate-500">${formatDate(s.created_at)}</td>
+                        <td class="px-4 py-3">
+                            <button onclick="confirmDelete('student', ${s.id}, '${s.full_name.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                        </td>
+                    </tr>`).join('');
+
+            renderPagination('students-pagination', data.pagination, 'loadStudents');
+        }
+
+        document.getElementById('student-search').addEventListener('keypress', e => { if (e.key === 'Enter') loadStudents(); });
+
+        // --- Payments ---
+        function filterRequests(status) {
+            currentPaymentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter', 'bg-blue-600', 'text-white', 'border-blue-600'));
+            event.target.classList.add('active-filter', 'bg-blue-600', 'text-white', 'border-blue-600');
+            loadPayments();
+        }
+
+        async function loadPayments(page = 1) {
+            paymentsPage = page;
+            const data = await adminFetch(`/admin/upgrade-requests?page=${page}&limit=15&status=${currentPaymentFilter}`);
+            if (!data) return;
+
+            document.getElementById('payments-table').innerHTML = data.data.length === 0 ?
+                '<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">No requests found</td></tr>' :
+                data.data.map(r => `
+                    <tr class="table-row">
+                        <td class="px-4 py-3">${r.id}</td>
+                        <td class="px-4 py-3 font-medium">${r.company_name}</td>
+                        <td class="px-4 py-3 text-slate-600">${r.email}</td>
+                        <td class="px-4 py-3">${planBadge(r.current_plan)}</td>
+                        <td class="px-4 py-3">${planBadge(r.requested_plan)}</td>
+                        <td class="px-4 py-3">${statusBadge(r.status)}</td>
+                        <td class="px-4 py-3 text-slate-500">${formatDate(r.created_at)}</td>
+                        <td class="px-4 py-3">
+                            ${r.status === 'pending' ? `
+                                <div class="flex gap-2">
+                                    <button onclick="confirmAction(${r.id}, 'approved', '${r.company_name.replace(/'/g, "\\'")}', '${r.requested_plan}')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition">Approve</button>
+                                    <button onclick="confirmAction(${r.id}, 'rejected', '${r.company_name.replace(/'/g, "\\'")}', '${r.requested_plan}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition">Reject</button>
+                                </div>` :
+                                `<span class="text-xs text-slate-400">${r.processed_at ? formatDate(r.processed_at) : '-'}</span>`}
+                        </td>
+                    </tr>`).join('');
+
+            renderPagination('payments-pagination', data.pagination, 'loadPayments');
+        }
+
+        // --- Modal ---
+        let modalCallback = null;
+
+        function openModal(title, message, btnText, btnClass, callback, showNote = false) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            const btn = document.getElementById('modal-confirm-btn');
+            btn.textContent = btnText;
+            btn.className = `flex-1 ${btnClass} text-white py-2.5 rounded-xl font-semibold transition`;
+            document.getElementById('modal-note-wrap').classList.toggle('hidden', !showNote);
+            document.getElementById('modal-note').value = '';
+            modalCallback = callback;
+            btn.onclick = () => { closeModal(); if (modalCallback) modalCallback(); };
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.getElementById('confirm-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        // --- Actions ---
+        function confirmDelete(type, id, name) {
+            openModal(
+                `Delete ${type === 'company' ? 'Company' : 'Student'}`,
+                `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+                'Delete',
+                'bg-red-500 hover:bg-red-600',
+                async () => {
+                    const endpoint = type === 'company' ? `/admin/companies/${id}` : `/admin/students/${id}`;
+                    const res = await adminFetch(endpoint, { method: 'DELETE' });
+                    if (res) {
+                        showToast(res.message || 'Deleted successfully');
+                        if (type === 'company') loadCompanies(companiesPage);
+                        else loadStudents(studentsPage);
+                    }
+                }
+            );
+        }
+
+        function confirmAction(reqId, action, companyName, plan) {
+            const isApprove = action === 'approved';
+            openModal(
+                isApprove ? 'Approve Upgrade' : 'Reject Request',
+                isApprove ?
+                    `Approve upgrade to "${plan}" for "${companyName}"? The company will be upgraded immediately.` :
+                    `Reject upgrade request from "${companyName}"?`,
+                isApprove ? 'Approve' : 'Reject',
+                isApprove ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600',
+                async () => {
+                    const note = document.getElementById('modal-note').value;
+                    const res = await adminFetch(`/admin/upgrade-requests/${reqId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ action, admin_note: note })
+                    });
+                    if (res) {
+                        showToast(res.message || `Request ${action}`);
+                        loadPayments(paymentsPage);
+                        loadDashboard();
+                    }
+                },
+                true
+            );
+        }
+
+        // --- Init ---
+        loadDashboard();
+    </script>
+</body>
+</html>

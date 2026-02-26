@@ -44,14 +44,28 @@ def upgrade_plan():
         if not plan_details:
             return jsonify({'message': 'Plan not found'}), 400
 
-        expiry = datetime.now() + timedelta(days=30)
+        company = query_one('SELECT subscription_plan FROM companies WHERE id = %s', (g.user['id'],))
+        if not company:
+            return jsonify({'message': 'Company not found'}), 404
 
+        if company['subscription_plan'] == plan:
+            return jsonify({'message': 'You are already on this plan'}), 400
+
+        # Check if there is already a pending request for this plan
+        existing = query_one(
+            "SELECT id FROM upgrade_requests WHERE company_id = %s AND requested_plan = %s AND status = 'pending'",
+            (g.user['id'], plan)
+        )
+        if existing:
+            return jsonify({'message': 'You already have a pending request for this plan. Please wait for admin approval.'}), 400
+
+        # Create upgrade request instead of direct upgrade
         execute(
-            'UPDATE companies SET subscription_plan = %s, task_limit = %s, subscription_expiry = %s WHERE id = %s',
-            (plan, plan_details['task_limit'], expiry, g.user['id'])
+            'INSERT INTO upgrade_requests (company_id, current_plan, requested_plan) VALUES (%s, %s, %s)',
+            (g.user['id'], company['subscription_plan'], plan)
         )
 
-        return jsonify({'message': f'Plan upgraded to {plan} successfully'})
+        return jsonify({'message': 'Upgrade request submitted successfully. Please wait for admin approval.'})
 
     except Exception as e:
         print(f'Upgrade plan error: {e}')

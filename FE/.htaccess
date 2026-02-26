@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Bỏ đuôi .html - nếu file .html tồn tại thì serve nó
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# Trang mặc định
+DirectoryIndex index.html
+
+# Chặn truy cập trực tiếp file .html (redirect về URL đẹp)
+RewriteCond %{THE_REQUEST} \.html[\s?] [NC]
+RewriteRule ^(.+)\.html$ /$1 [R=301,L]

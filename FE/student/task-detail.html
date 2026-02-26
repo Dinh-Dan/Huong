@@ -6,13 +6,13 @@
     <title>Task Detail - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-        <a href="/FE/browse-tasks.html" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 mb-6 font-medium">
+        <a href="/browse-tasks" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 mb-6 font-medium">
             &larr; Back to Tasks
         </a>
 
@@ -21,12 +21,12 @@
         </div>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/navbar.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/navbar.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         const taskId = getQueryParam('id');
-        if (!taskId) window.location.href = '/FE/browse-tasks.html';
+        if (!taskId) window.location.href = '/browse-tasks';
 
         async function loadTask() {
             try {
@@ -81,15 +81,15 @@
 
                     <div class="flex gap-4 pt-6 border-t border-slate-200">
                         ${isLoggedIn() && getUser().role === 'student' ? `
-                            <a href="/FE/student/submit-work.html?taskId=${task.id}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                            <a href="/student/submit-work?taskId=${task.id}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
                                 Submit Work
                             </a>
                         ` : !isLoggedIn() ? `
-                            <a href="/FE/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+                            <a href="/login" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
                                 Login to Submit
                             </a>
                         ` : ''}
-                        <a href="/FE/browse-tasks.html" class="bg-white hover:bg-slate-50 text-slate-700 px-8 py-3 rounded-xl font-semibold transition border border-slate-200">
+                        <a href="/browse-tasks" class="bg-white hover:bg-slate-50 text-slate-700 px-8 py-3 rounded-xl font-semibold transition border border-slate-200">
                             Back to Tasks
                         </a>
                     </div>

@@ -6,7 +6,7 @@
     <title>Company Profile - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -70,9 +70,9 @@
         </div>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/navbar.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/navbar.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('company')) throw new Error('Not authorized');
 
@@ -91,7 +91,7 @@
             document.getElementById('profile-view').innerHTML = `
                 <div class="flex items-center gap-6 mb-8">
                     <div class="w-20 h-20 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 font-bold text-2xl">
-                        ${p.logo_path ? `<img src="http://localhost:5000/uploads/logos/${p.logo_path}" class="w-full h-full object-cover rounded-xl">` : p.company_name.charAt(0)}
+                        ${p.logo_path ? `<img src="/uploads/logos/${p.logo_path}" class="w-full h-full object-cover rounded-xl">` : p.company_name.charAt(0)}
                     </div>
                     <div>
                         <h2 class="text-2xl font-bold">${p.company_name}</h2>

@@ -6,7 +6,7 @@
     <title>Submit Work - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -72,14 +72,14 @@
         </div>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/navbar.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/navbar.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('student')) throw new Error('Not authorized');
 
         const taskId = getQueryParam('taskId');
-        if (!taskId) window.location.href = '/FE/browse-tasks.html';
+        if (!taskId) window.location.href = '/browse-tasks';
 
         const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
@@ -125,13 +125,15 @@
                 return;
             }
 
+            // Create FormData BEFORE disabling (disabled inputs are excluded from FormData)
+            const formData = new FormData(e.target);
+
             // Show overlay + disable form
             overlay.classList.remove('hidden');
             setFormDisabled(true);
             showLoading(btn);
 
             try {
-                const formData = new FormData(e.target);
                 await apiPost(`/submissions/${taskId}`, formData, true);
 
                 showToast('Nộp bài thành công!', 'success');
@@ -149,10 +151,10 @@
                         <p class="text-slate-400 text-sm mb-6">Doanh nghiệp sẽ xem xét và phản hồi sớm nhất có thể.</p>
                         <p class="text-slate-400 text-sm mb-6">Tự động chuyển hướng sau <span id="countdown" class="font-bold text-blue-600">3</span>s...</p>
                         <div class="flex gap-3 justify-center">
-                            <a href="/FE/student/my-submissions.html" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition">
+                            <a href="/student/my-submissions" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition">
                                 Xem bài nộp
                             </a>
-                            <a href="/FE/browse-tasks.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-semibold transition">
+                            <a href="/browse-tasks" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-semibold transition">
                                 Xem thêm task
                             </a>
                         </div>
@@ -164,7 +166,7 @@
                     seconds--;
                     const el = document.getElementById('countdown');
                     if (el) el.textContent = seconds;
-                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/FE/student/my-submissions.html'; }
+                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/student/my-submissions'; }
                 }, 1000);
             } catch (err) {
                 overlay.classList.add('hidden');

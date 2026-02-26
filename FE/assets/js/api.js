@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -51,7 +51,7 @@ async function apiRequest(method, endpoint, data = null, isFormData = false) {
       // Don't redirect if we're on the login page (login attempt failed)
       if (response.status === 401 && getToken()) {
         clearAuth();
-        window.location.href = '/FE/login.html';
+        window.location.href = '/login';
         return;
       }
       throw { status: response.status, ...result };
@@ -83,15 +83,15 @@ function apiDelete(endpoint) {
 // Redirect helpers
 function requireAuth(role = null) {
   if (!isLoggedIn()) {
-    window.location.href = '/FE/login.html';
+    window.location.href = '/login';
     return false;
   }
   if (role) {
     const user = getUser();
     if (user.role !== role) {
       window.location.href = user.role === 'student'
-        ? '/FE/student/dashboard.html'
-        : '/FE/company/dashboard.html';
+        ? '/student/dashboard'
+        : '/company/dashboard';
       return false;
     }
   }
@@ -102,7 +102,7 @@ function redirectIfLoggedIn() {
   if (isLoggedIn()) {
     const user = getUser();
     window.location.href = user.role === 'student'
-      ? '/FE/student/dashboard.html'
-      : '/FE/company/dashboard.html';
+      ? '/student/dashboard'
+      : '/company/dashboard';
   }
 }

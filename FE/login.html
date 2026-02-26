@@ -6,7 +6,7 @@
     <title>Login - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="login-gradient-bg min-h-screen flex items-center justify-center p-4">
 
@@ -15,7 +15,7 @@
 
     <div class="glass-card rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10">
         <div class="text-center mb-8">
-            <a href="/FE/index.html" class="inline-flex items-center gap-2 mb-4">
+            <a href="/" class="inline-flex items-center gap-2 mb-4">
                 <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
@@ -57,12 +57,12 @@
 
         <p class="text-center text-sm text-slate-500 mt-6">
             Don't have an account?
-            <a href="/FE/register-student.html" id="register-link" class="text-blue-600 hover:underline font-medium">Register as Student</a>
+            <a href="/register-student" id="register-link" class="text-blue-600 hover:underline font-medium">Register as Student</a>
         </p>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         let currentRole = 'student';
 
@@ -70,7 +70,7 @@
             currentRole = role;
             document.getElementById('tab-student').className = `flex-1 py-2.5 rounded-lg font-semibold text-sm transition ${role === 'student' ? 'tab-active' : 'tab-inactive'}`;
             document.getElementById('tab-company').className = `flex-1 py-2.5 rounded-lg font-semibold text-sm transition ${role === 'company' ? 'tab-active' : 'tab-inactive'}`;
-            document.getElementById('register-link').href = role === 'student' ? '/FE/register-student.html' : '/FE/register-company.html';
+            document.getElementById('register-link').href = role === 'student' ? '/register-student' : '/register-company';
             document.getElementById('register-link').textContent = role === 'student' ? 'Register as Student' : 'Register as Company';
         }
 
@@ -92,8 +92,8 @@
                 setAuth(data.token, data.user);
 
                 const redirectUrl = currentRole === 'student'
-                    ? '/FE/student/dashboard.html'
-                    : '/FE/company/dashboard.html';
+                    ? '/student/dashboard'
+                    : '/company/dashboard';
 
                 // Show success screen
                 document.querySelector('.glass-card').innerHTML = `

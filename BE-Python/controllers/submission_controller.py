@@ -1,23 +1,26 @@
 import os
-from datetime import datetime
+from datetime import datetime, date
 from flask import request, jsonify, g
-from database.db import query, query_one, execute
+from database.db import query, query_one, execute, get_connection
 
 def submit_work(task_id):
     try:
         student_id = g.user['id']
 
         # Check task exists and active
-        task = query_one('SELECT * FROM tasks WHERE id = %s AND status = "active"', (task_id,))
+        task = query_one('SELECT * FROM tasks WHERE id = %s AND status = %s', (task_id, 'active'))
         if not task:
             return jsonify({'message': 'Task not found or closed'}), 404
 
         # Check deadline
-        if task['deadline'] and task['deadline'] < datetime.now():
+        deadline = task['deadline']
+        if isinstance(deadline, date):
+            deadline = datetime.combine(deadline, datetime.max.time())
+        if deadline and deadline < datetime.now():
             return jsonify({'message': 'Task deadline has passed'}), 400
 
         # Check max submissions
-        if task['current_submissions'] >= task['max_submissions']:
+        if task['max_submissions'] is not None and task['current_submissions'] >= task['max_submissions']:
             return jsonify({'message': 'Maximum submissions reached for this task'}), 400
 
         # Check duplicate
@@ -25,31 +28,52 @@ def submit_work(task_id):
         if existing:
             return jsonify({'message': 'You have already submitted for this task'}), 400
 
-        text_answer = request.form.get('text_answer', '')
-        portfolio_link = request.form.get('portfolio_link', '')
+        text_answer = request.form.get('text_answer') or None
+        portfolio_link = request.form.get('portfolio_link') or None
 
         file_path = None
         if 'file' in request.files:
             f = request.files['file']
             if f.filename:
+                upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'submissions')
+                os.makedirs(upload_dir, exist_ok=True)
                 filename = f"{int(datetime.now().timestamp() * 1000)}-{f.filename}"
-                f.save(os.path.join('uploads', 'submissions', filename))
+                f.save(os.path.join(upload_dir, filename))
                 file_path = filename
 
-        cursor = execute(
-            '''INSERT INTO submissions (task_id, student_id, file_path, text_answer, portfolio_link)
-               VALUES (%s, %s, %s, %s, %s)''',
-            (task_id, student_id, file_path, text_answer, portfolio_link)
-        )
+        # Use a single connection for all write operations (atomic transaction)
+        conn = get_connection()
+        try:
+            conn.autocommit(False)
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    '''INSERT INTO submissions (task_id, student_id, file_path, text_answer, portfolio_link)
+                       VALUES (%s, %s, %s, %s, %s)''',
+                    (task_id, student_id, file_path, text_answer, portfolio_link)
+                )
+                submission_id = cursor.lastrowid
 
-        execute('UPDATE tasks SET current_submissions = current_submissions + 1 WHERE id = %s', (task_id,))
-        execute('UPDATE students SET total_submissions = total_submissions + 1 WHERE id = %s', (student_id,))
+                cursor.execute(
+                    'UPDATE tasks SET current_submissions = current_submissions + 1 WHERE id = %s',
+                    (task_id,)
+                )
+                cursor.execute(
+                    'UPDATE students SET total_submissions = total_submissions + 1 WHERE id = %s',
+                    (student_id,)
+                )
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
-        return jsonify({'message': 'Submission successful', 'submissionId': cursor.lastrowid}), 201
+        return jsonify({'message': 'Submission successful', 'submissionId': submission_id}), 201
 
     except Exception as e:
-        print(f'Submit work error: {e}')
-        return jsonify({'message': 'Server error'}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'message': f'Server error: {str(e)}'}), 500
 
 def get_my_submissions():
     try:

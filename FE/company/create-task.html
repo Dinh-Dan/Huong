@@ -6,7 +6,7 @@
     <title>Create Task - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -76,9 +76,9 @@
         </div>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/navbar.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/navbar.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('company')) throw new Error('Not authorized');
 
@@ -106,7 +106,7 @@
                         <h2 class="text-2xl font-bold text-slate-900 mb-2">Tạo task thành công!</h2>
                         <p class="text-slate-500 mb-4">Task đã được đăng và sinh viên có thể bắt đầu nộp bài.</p>
                         <p class="text-slate-400 text-sm mb-4">Tự động chuyển hướng sau <span id="countdown">3</span>s...</p>
-                        <a href="/FE/company/dashboard.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition">
+                        <a href="/company/dashboard" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition">
                             Về Dashboard
                         </a>
                     </div>
@@ -117,7 +117,7 @@
                     seconds--;
                     const el = document.getElementById('countdown');
                     if (el) el.textContent = seconds;
-                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/FE/company/dashboard.html'; }
+                    if (seconds <= 0) { clearInterval(timer); window.location.href = '/company/dashboard'; }
                 }, 1000);
             } catch (err) {
                 const msg = err.errors ? err.errors.map(e => e.msg).join(', ') : (err.message || 'Failed to create task');

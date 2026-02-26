@@ -6,7 +6,7 @@
     <title>Subscription - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/FE/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -69,7 +69,7 @@
             <h3 class="text-xl font-bold mb-2">Thanh toán chuyển khoản</h3>
             <p class="text-slate-500 mb-1">Gói: <span id="qr-plan-name" class="font-semibold text-blue-600 capitalize"></span></p>
             <p class="text-slate-500 mb-4">Giá: <span id="qr-plan-price" class="font-semibold text-slate-800"></span></p>
-            <img src="/FE/assets/image/image.png" alt="QR Code chuyển khoản" class="mx-auto rounded-xl border border-slate-200 max-w-[280px] w-full mb-4">
+            <img src="/assets/image/image.png" alt="QR Code chuyển khoản" class="mx-auto rounded-xl border border-slate-200 max-w-[280px] w-full mb-4">
             <p class="text-sm text-slate-500 mb-6">Quét mã QR để chuyển khoản. Sau khi chuyển khoản thành công, bấm xác nhận bên dưới.</p>
             <div class="flex gap-3">
                 <button onclick="closeQrModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-semibold transition">Hủy</button>
@@ -78,9 +78,9 @@
         </div>
     </div>
 
-    <script src="/FE/assets/js/api.js"></script>
-    <script src="/FE/assets/js/navbar.js"></script>
-    <script src="/FE/assets/js/utils.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/navbar.js"></script>
+    <script src="/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('company')) throw new Error('Not authorized');
 
@@ -140,11 +140,10 @@
             if (!selectedPlan) return;
             try {
                 await apiPut('/subscription/upgrade', { plan: selectedPlan });
-                showToast(`Đã nâng cấp lên gói ${selectedPlan}!`, 'success');
+                showToast('Yêu cầu nâng cấp đã được gửi! Vui lòng chờ admin xác nhận thanh toán.', 'success');
                 closeQrModal();
-                loadCurrentPlan();
             } catch (err) {
-                showToast(err.message || 'Nâng cấp thất bại', 'error');
+                showToast(err.message || 'Gửi yêu cầu thất bại', 'error');
             }
         }
 
