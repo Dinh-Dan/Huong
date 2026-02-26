@@ -6,7 +6,7 @@
     <title>Admin Login - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
 </head>
 <body class="login-gradient-bg min-h-screen flex items-center justify-center p-4">
     <div class="floating-shape w-72 h-72 bg-blue-500 top-10 left-10"></div>
@@ -44,17 +44,17 @@
         </form>
 
         <div class="mt-6 text-center">
-            <a href="/" class="text-sm text-slate-500 hover:text-blue-600 transition">Back to SkillRank</a>
+            <a href="/FE/" class="text-sm text-slate-500 hover:text-blue-600 transition">Back to SkillRank</a>
         </div>
     </div>
 
     <script>
-        const API_BASE = '/api';
+        const API_BASE = 'http://localhost:5000/api';
 
         // Redirect if already logged in as admin
         const adminToken = localStorage.getItem('admin_token');
         if (adminToken) {
-            window.location.href = '/admin-huong/';
+            window.location.href = '/FE/admin-huong/';
         }
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -86,7 +86,7 @@
 
                 localStorage.setItem('admin_token', result.token);
                 localStorage.setItem('admin_user', JSON.stringify(result.user));
-                window.location.href = '/admin-huong/';
+                window.location.href = '/FE/admin-huong/';
             } catch (err) {
                 errorMsg.textContent = err.message;
                 errorMsg.classList.remove('hidden');

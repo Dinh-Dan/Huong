@@ -6,7 +6,7 @@
     <title>Admin Dashboard - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
     <style>
         .sidebar-link { transition: all 0.2s; }
         .sidebar-link:hover { background: rgba(59,130,246,0.08); }
@@ -263,7 +263,7 @@
     </div>
 
     <script>
-        const API_BASE = '/api';
+        const API_BASE = 'http://localhost:5000/api';
         let currentPaymentFilter = '';
         let companiesPage = 1;
         let studentsPage = 1;
@@ -277,7 +277,7 @@
         }
 
         if (!getAdminToken()) {
-            window.location.href = '/admin-huong/login.html';
+            window.location.href = '/FE/admin-huong/login.html';
         }
 
         const adminUser = getAdminUser();
@@ -289,7 +289,7 @@
         function logout() {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_user');
-            window.location.href = '/admin-huong/login.html';
+            window.location.href = '/FE/admin-huong/login.html';
         }
 
         async function adminFetch(endpoint, options = {}) {

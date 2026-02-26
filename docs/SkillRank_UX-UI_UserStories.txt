@@ -1,0 +1,1313 @@
+================================================================================
+          SKILLRANK - TAI LIEU UX/UI & USER STORIES
+================================================================================
+
+  Du an:       SkillRank - Nen tang tuyen dung IT qua bai kiem tra ky nang thuc te
+  Phien ban:   MVP 1.0
+  Ngay tao:    26/02/2026
+  Vai tro:     Student (Sinh vien), Company (Doanh nghiep), Admin (Quan tri vien)
+
+================================================================================
+                            MUC LUC
+================================================================================
+
+  1. Tong quan he thong
+  2. User Personas
+  3. User Stories
+  4. User Flow Diagrams
+  5. Ban ve giao dien Figma - Wireframe
+  6. Design System
+  7. Responsive Design
+  Phu luc A: Danh sach API Endpoints
+  Phu luc B: Database Schema
+
+================================================================================
+  1. TONG QUAN HE THONG
+================================================================================
+
+1.1 Mo ta du an
+---------------
+SkillRank la nen tang ket noi sinh vien IT voi doanh nghiep thong qua cac bai
+tap (task) thuc te thay vi CV truyen thong. Doanh nghiep dang bai tap, sinh vien
+nop bai giai, doanh nghiep cham diem va tim ung vien phu hop.
+
+1.2 Cac vai tro nguoi dung
+---------------------------
++----------+----------------------------+------------------------------------------------+
+| Vai tro  | Mo ta                      | Quyen han chinh                                |
++----------+----------------------------+------------------------------------------------+
+| Student  | Sinh vien IT tim viec      | Duyet task, nop bai, xem ket qua, quan ly ho so|
+| Company  | Doanh nghiep tuyen dung    | Tao task, cham bai, xem bang xep hang, quan ly goi|
+| Admin    | Quan tri he thong          | Quan ly user, duyet thanh toan, xem thong ke   |
++----------+----------------------------+------------------------------------------------+
+
+1.3 Goi dang ky (Subscription Plans)
+-------------------------------------
++----------+----------+------------+-----------------------------------------------+
+| Goi      | Gia      | Task/thang | Tinh nang                                     |
++----------+----------+------------+-----------------------------------------------+
+| Basic    | Mien phi | 2          | Xem bai nop, cham diem                        |
+| Standard | $49.99   | 5          | + Bang xep hang theo task                     |
+| Premium  | $99.99   | Khong gioi | + Bang xep hang toan cau, xuat CSV            |
+|          |          | han        |                                               |
++----------+----------+------------+-----------------------------------------------+
+
+
+================================================================================
+  2. USER PERSONAS
+================================================================================
+
+2.1 Persona: Sinh vien - Nguyen Minh Tuan
+------------------------------------------
+  - Tuoi:        22
+  - Nghe nghiep: Sinh vien nam 4 nganh CNTT, DH Bach Khoa
+  - Muc tieu:    Muon chung minh nang luc lap trinh thuc te,
+                 tim co hoi thuc tap/viec lam
+  - Pain points: CV khong the hien du ky nang, phong van truyen thong
+                 khong danh gia dung nang luc
+  - Hanh vi:     Thuong xuyen code tren GitHub, tham gia hackathon,
+                 muon duoc danh gia qua san pham thuc te
+
+2.2 Persona: Doanh nghiep - Tran Thi Ha (HR Manager)
+-----------------------------------------------------
+  - Tuoi:        30
+  - Nghe nghiep: Truong phong nhan su, cong ty phan mem FPT
+  - Muc tieu:    Tim ung vien co ky nang thuc chien,
+                 giam thoi gian sang loc CV
+  - Pain points: Nhieu ung vien CV dep nhung khong code duoc,
+                 ton thoi gian phong van
+  - Hanh vi:     Muon ra de bai thuc te, cham bai nhanh,
+                 co bang xep hang de so sanh
+
+2.3 Persona: Admin - Le Van Hung
+---------------------------------
+  - Tuoi:        28
+  - Nghe nghiep: Quan tri he thong SkillRank
+  - Muc tieu:    Dam bao he thong van hanh tron tru,
+                 quan ly nguoi dung va doanh thu
+  - Pain points: Can dashboard tong quan nhanh,
+                 xu ly yeu cau nang cap kip thoi
+
+
+================================================================================
+  3. USER STORIES
+================================================================================
+
+--------------------------------------------------------------------------------
+3.1 Epic: Xac thuc & Dang ky (Authentication)
+--------------------------------------------------------------------------------
+
+US-AUTH-01 | Priority: MUST
+  User Story: La sinh vien, toi muon DANG KY TAI KHOAN voi thong tin ca nhan
+              va CV de tham gia nen tang.
+  Acceptance Criteria:
+    - Form dang ky yeu cau: ho ten, email, mat khau, truong, nganh,
+      nam hoc, ky nang, SDT
+    - Upload CV (PDF, max 5MB)
+    - Kiem tra email trung lap
+    - Mat khau toi thieu 6 ky tu
+
+US-AUTH-02 | Priority: MUST
+  User Story: La doanh nghiep, toi muon DANG KY TAI KHOAN voi thong tin
+              cong ty de dang bai tuyen dung.
+  Acceptance Criteria:
+    - Form dang ky: ten cong ty, ma dang ky, email, mat khau, nganh,
+      quy mo, website, dia chi, mo ta
+    - Upload giay phep kinh doanh + logo (max 10MB)
+    - Kiem tra email va ma dang ky trung
+
+US-AUTH-03 | Priority: MUST
+  User Story: La nguoi dung, toi muon DANG NHAP bang email va mat khau
+              de truy cap he thong.
+  Acceptance Criteria:
+    - Chon vai tro (Student/Company) truoc khi dang nhap
+    - Token JWT het han sau 7 ngay
+    - Redirect dung dashboard theo vai tro
+
+US-AUTH-04 | Priority: MUST
+  User Story: La nguoi dung, toi muon DANG XUAT de bao mat tai khoan.
+  Acceptance Criteria:
+    - Xoa token khoi localStorage
+    - Redirect ve trang chu
+
+US-AUTH-05 | Priority: MUST
+  User Story: La admin, toi muon DANG NHAP RIENG qua trang admin
+              de quan tri he thong.
+  Acceptance Criteria:
+    - Trang login rieng tai /admin-huong/login
+    - Username + password
+    - Token rieng (admin_token)
+
+--------------------------------------------------------------------------------
+3.2 Epic: Sinh vien - Duyet & Nop bai (Student - Tasks & Submissions)
+--------------------------------------------------------------------------------
+
+US-STU-01 | Priority: MUST
+  User Story: La sinh vien, toi muon XEM DASHBOARD de nam tong quan hoat dong.
+  Acceptance Criteria:
+    - Hien thi: tong bai nop, bai dang cho, bai duoc chap nhan
+    - Danh sach bai nop gan day
+
+US-STU-02 | Priority: MUST
+  User Story: La sinh vien, toi muon DUYET DANH SACH TASK voi bo loc
+              de tim bai tap phu hop.
+  Acceptance Criteria:
+    - Loc theo: nganh, do kho (Easy/Medium/Hard), tu khoa
+    - Phan trang (12 task/trang)
+    - Hien thi: ten task, cong ty, deadline, do kho, nganh
+
+US-STU-03 | Priority: MUST
+  User Story: La sinh vien, toi muon XEM CHI TIET TASK de hieu yeu cau
+              truoc khi nop bai.
+  Acceptance Criteria:
+    - Hien thi: mo ta day du, ket qua mong doi, thoi gian uoc tinh,
+      deadline, so luot nop con lai
+    - Nut "Nop bai" noi bat
+
+US-STU-04 | Priority: MUST
+  User Story: La sinh vien, toi muon NOP BAI GIAI cho task de duoc danh gia.
+  Acceptance Criteria:
+    - Upload file (PDF/ZIP, max 20MB)
+    - Nhap cau tra loi text
+    - Nhap link portfolio
+    - Moi task chi nop 1 lan
+    - Khong nop sau deadline
+
+US-STU-05 | Priority: MUST
+  User Story: La sinh vien, toi muon XEM DANH SACH BAI DA NOP va trang thai cham.
+  Acceptance Criteria:
+    - Hien thi: ten task, ngay nop, trang thai
+      (pending/reviewed/interested/rejected)
+    - Xem diem va feedback khi da cham
+
+US-STU-06 | Priority: SHOULD
+  User Story: La sinh vien, toi muon QUAN LY HO SO CA NHAN de cap nhat thong tin.
+  Acceptance Criteria:
+    - Chinh sua: ky nang, SDT, link portfolio, LinkedIn
+    - Upload lai CV moi
+    - Xem avatar
+
+--------------------------------------------------------------------------------
+3.3 Epic: Doanh nghiep - Quan ly Task & Danh gia (Company)
+--------------------------------------------------------------------------------
+
+US-COM-01 | Priority: MUST
+  User Story: La doanh nghiep, toi muon XEM DASHBOARD de theo doi tuyen dung.
+  Acceptance Criteria:
+    - Hien thi: tong task, tong bai nop, ung vien duoc chap nhan
+    - Quota task su dung (theo goi dang ky)
+
+US-COM-02 | Priority: MUST
+  User Story: La doanh nghiep, toi muon TAO TASK MOI de danh gia ung vien.
+  Acceptance Criteria:
+    - Nhap: tieu de, mo ta, ket qua mong doi, thoi gian uoc tinh,
+      deadline, do kho, nganh, so luot nop toi da
+    - Kiem tra quota task theo goi
+
+US-COM-03 | Priority: MUST
+  User Story: La doanh nghiep, toi muon XEM DANH SACH BAI NOP tu tat ca task.
+  Acceptance Criteria:
+    - Hien thi: ten sinh vien, task, ngay nop, trang thai
+    - Loc theo task
+    - Download file bai nop
+
+US-COM-04 | Priority: MUST
+  User Story: La doanh nghiep, toi muon CHAM DIEM VA DANH GIA bai nop
+              cua sinh vien.
+  Acceptance Criteria:
+    - Cho diem 0-100
+    - Viet feedback chi tiet
+    - Danh trang thai: reviewed/interested/rejected
+    - Sinh vien nhan thong bao sau khi cham
+
+US-COM-05 | Priority: SHOULD
+  User Story: La doanh nghiep (goi Standard+), toi muon XEM BANG XEP HANG
+              THEO TASK de so sanh ung vien.
+  Acceptance Criteria:
+    - Xep hang sinh vien theo diem cho tung task
+    - Chi kha dung tu goi Standard tro len
+
+US-COM-06 | Priority: COULD
+  User Story: La doanh nghiep (goi Premium), toi muon XEM BANG XEP HANG
+              TOAN CAU de tim talent.
+  Acceptance Criteria:
+    - Xep hang toan bo sinh vien tren nen tang
+    - Loc theo: truong, nam hoc, ky nang, khoang diem
+    - Xuat CSV
+
+US-COM-07 | Priority: MUST
+  User Story: La doanh nghiep, toi muon QUAN LY GOI DANG KY
+              de mo rong tinh nang.
+  Acceptance Criteria:
+    - Xem goi hien tai va gioi han
+    - Yeu cau nang cap (gui cho admin duyet)
+    - Xem lich su yeu cau
+
+US-COM-08 | Priority: SHOULD
+  User Story: La doanh nghiep, toi muon QUAN LY HO SO CONG TY.
+  Acceptance Criteria:
+    - Chinh sua: mo ta, website, dia chi, quy mo
+    - Upload logo moi
+
+--------------------------------------------------------------------------------
+3.4 Epic: Admin - Quan tri he thong (Admin Management)
+--------------------------------------------------------------------------------
+
+US-ADM-01 | Priority: MUST
+  User Story: La admin, toi muon XEM DASHBOARD TONG QUAN
+              de nam tinh hinh he thong.
+  Acceptance Criteria:
+    - Thong ke: tong sinh vien, doanh nghiep, task, bai nop
+    - So yeu cau pending
+    - Doanh thu thang
+    - Bieu do phan bo goi dang ky
+    - Hoat dong gan day
+
+US-ADM-02 | Priority: MUST
+  User Story: La admin, toi muon QUAN LY DANH SACH DOANH NGHIEP.
+  Acceptance Criteria:
+    - Xem danh sach co phan trang (15/trang)
+    - Tim kiem theo ten, email
+    - Xem thong tin: goi dang ky, task da dung
+    - Xoa doanh nghiep
+
+US-ADM-03 | Priority: MUST
+  User Story: La admin, toi muon QUAN LY DANH SACH SINH VIEN.
+  Acceptance Criteria:
+    - Xem danh sach co phan trang (15/trang)
+    - Tim kiem theo ten, email
+    - Xem thong tin: truong, diem TB, so bai nop
+    - Xoa sinh vien
+
+US-ADM-04 | Priority: MUST
+  User Story: La admin, toi muon DUYET YEU CAU NANG CAP GOI
+              tu doanh nghiep.
+  Acceptance Criteria:
+    - Xem danh sach yeu cau voi bo loc trang thai
+    - Phe duyet / Tu choi voi ghi chu
+    - Tu dong cap nhat goi khi phe duyet
+
+--------------------------------------------------------------------------------
+3.5 Epic: Trang cong khai (Public Pages)
+--------------------------------------------------------------------------------
+
+US-PUB-01 | Priority: MUST
+  User Story: La khach, toi muon XEM TRANG CHU de hieu ve SkillRank.
+  Acceptance Criteria:
+    - Hero section gioi thieu
+    - Tinh nang noi bat
+    - Testimonials
+    - CTA dang ky
+
+US-PUB-02 | Priority: SHOULD
+  User Story: La khach, toi muon XEM TRANG BANG GIA de chon goi phu hop.
+  Acceptance Criteria:
+    - So sanh 3 goi: Basic, Standard, Premium
+    - Hien thi tinh nang tung goi
+    - Nut dang ky
+
+US-PUB-03 | Priority: SHOULD
+  User Story: La khach, toi muon DUYET TASK CONG KHAI
+              de xem co hoi truoc khi dang ky.
+  Acceptance Criteria:
+    - Xem danh sach task khong can dang nhap
+    - Yeu cau dang nhap de nop bai
+
+
+================================================================================
+  4. USER FLOW DIAGRAMS
+================================================================================
+
+4.1 Flow: Sinh vien dang ky & nop bai
+--------------------------------------
+
+  [Trang chu]  -->  [Dang ky SV]  -->  [Dang nhap]  -->  [Dashboard SV]
+  (Landing)        (Form + CV)       (Email+Pass)            |
+                                                              |
+                                                              v
+  [Xem ket qua]  <--  [Nop bai]  <--  [Chi tiet]  <--  [Duyet danh
+   & Feedback]       (File+Text+       Task             sach Task]
+                      Link)                              (Loc + Tim)
+
+
+4.2 Flow: Doanh nghiep tao task & cham bai
+-------------------------------------------
+
+  [Trang chu]  -->  [Dang ky DN]  -->  [Dang nhap]  -->  [Dashboard DN]
+  (Landing)        (Form+License)    (Email+Pass)            |
+                                                              |
+                   [Cham diem]  <--  [Xem bai nop]  <--------+
+                   (0-100 +          (Applicants)             |
+                    Feedback)                                 |
+                                                              |
+                   [Bang xep hang]  <--  [Tao Task]  <--------+
+                   (Standard+)           (Form)
+
+
+4.3 Flow: Nang cap goi dang ky
+-------------------------------
+
+  [Company      -->  [Trang         -->  [Gui yeu cau  -->  [Admin nhan
+   Dashboard]        Subscription]        nang cap]          thong bao]
+                                                                 |
+                   [Company       <--  [Admin duyet   <----------+
+                    nhan ket qua]       hoac tu choi]
+
+
+================================================================================
+  5. BAN VE GIAO DIEN FIGMA - WIREFRAME
+================================================================================
+
+Tong cong: 20 man hinh chinh
+
+  NHOM PUBLIC (4 man hinh):
+    S01: Landing Page (Trang chu)
+    S02: Login Page (Dang nhap)
+    S03: Register Student (Dang ky SV)
+    S04: Register Company (Dang ky DN)
+
+  NHOM STUDENT (6 man hinh):
+    S05: Student Dashboard
+    S06: Browse Tasks (Duyet task)
+    S07: Task Detail (Chi tiet task)
+    S08: Submit Work (Nop bai)
+    S09: My Submissions (Bai da nop)
+    S10: Student Profile (Ho so)
+
+  NHOM COMPANY (8 man hinh):
+    S11: Company Dashboard
+    S12: Create Task (Tao task)
+    S13: Applicants (Xem bai nop)
+    S14: Evaluate Submission (Cham bai)
+    S15: Task Ranking (Xep hang task)
+    S16: Global Leaderboard (Xep hang toan cau)
+    S17: Subscription (Quan ly goi)
+    S18: Company Profile (Ho so DN)
+
+  NHOM ADMIN (2 man hinh):
+    S19: Admin Login
+    S20: Admin Dashboard (4 tab)
+
+
+--------------------------------------------------------------------------------
+S01: LANDING PAGE (TRANG CHU)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| NAVBAR                                                            |
+| [Logo] SkillRank    Trang chu  Bai tap  Bang gia    [Dang nhap]  |
++------------------------------------------------------------------+
+|                                                                    |
+|  HERO SECTION                                                      |
+|  ================================================================  |
+|                                                                    |
+|    "Chung minh nang luc that su                                    |
+|     qua bai kiem tra thuc te"                                      |
+|                                                                    |
+|    Mo ta ngan: Ket noi sinh vien IT voi doanh nghiep               |
+|    qua cac bai tap coding thuc te                                  |
+|                                                                    |
+|    [ Bat dau ngay ]    [ Tim hieu them ]                           |
+|                                                                    |
+|              [ Hero Image / Illustration ]                         |
+|                                                                    |
++------------------------------------------------------------------+
+|  STATS BAR                                                         |
+|  500+ Sinh vien  |  100+ Doanh nghiep  |  1000+ Bai tap           |
++------------------------------------------------------------------+
+|                                                                    |
+|  FEATURES SECTION                                                  |
+|  "Tai sao chon SkillRank?"                                        |
+|                                                                    |
+|  +----------------+  +----------------+  +----------------+        |
+|  |   [Icon]       |  |   [Icon]       |  |   [Icon]       |        |
+|  | Bai tap        |  | Danh gia       |  | Ket noi        |        |
+|  | thuc te        |  | cong bang      |  | truc tiep      |        |
+|  | Mo ta...       |  | Mo ta...       |  | Mo ta...       |        |
+|  +----------------+  +----------------+  +----------------+        |
+|                                                                    |
++------------------------------------------------------------------+
+|                                                                    |
+|  HOW IT WORKS                                                      |
+|  "Cach hoat dong"                                                  |
+|                                                                    |
+|  Step 1 --> Step 2 --> Step 3 --> Step 4                           |
+|  Dang ky    Chon bai   Nop bai    Nhan ket qua                    |
+|  tai khoan  tap phu    giai       & co hoi                         |
+|             hop                   viec lam                         |
+|                                                                    |
++------------------------------------------------------------------+
+|                                                                    |
+|  TESTIMONIALS                                                      |
+|  +---------------------+  +---------------------+                  |
+|  | "SkillRank giup     |  | "Tim duoc ung       |                  |
+|  |  toi co viec..."    |  |  vien gioi..."      |                  |
+|  | - Sinh vien A       |  | - HR Manager B      |                  |
+|  +---------------------+  +---------------------+                  |
+|                                                                    |
++------------------------------------------------------------------+
+|  CTA SECTION                                                       |
+|  "San sang bat dau?"                                               |
+|  [ Dang ky Sinh vien ]   [ Dang ky Doanh nghiep ]                 |
++------------------------------------------------------------------+
+|  FOOTER                                                            |
+|  SkillRank (C) 2026  |  Lien he  |  Dieu khoan  |  Ve chung toi   |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S02: LOGIN PAGE (DANG NHAP)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+|                                                                    |
+|  +---------------------+  +-------------------------------+       |
+|  |                     |  |                               |       |
+|  |   [Gradient BG]     |  |         DANG NHAP             |       |
+|  |                     |  |                               |       |
+|  |   SkillRank         |  |  Tab: [Sinh vien] [Doanh nghiep]|    |
+|  |   Logo & Tagline    |  |                               |       |
+|  |                     |  |  Email:                        |       |
+|  |                     |  |  +---------------------------+ |       |
+|  |                     |  |  | example@email.com         | |       |
+|  |                     |  |  +---------------------------+ |       |
+|  |                     |  |                               |       |
+|  |                     |  |  Mat khau:                     |       |
+|  |                     |  |  +---------------------------+ |       |
+|  |                     |  |  | ********           [Eye]  | |       |
+|  |                     |  |  +---------------------------+ |       |
+|  |                     |  |                               |       |
+|  |                     |  |  [      Dang nhap          ]  |       |
+|  |                     |  |                               |       |
+|  |                     |  |  Chua co tai khoan?           |       |
+|  |                     |  |  [Dang ky ngay]               |       |
+|  |                     |  |                               |       |
+|  +---------------------+  +-------------------------------+       |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S03: REGISTER STUDENT (DANG KY SINH VIEN)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|         +---------------------------------------------+           |
+|         |        DANG KY SINH VIEN                    |           |
+|         |                                             |           |
+|         |  Ho va ten *                                |           |
+|         |  +---------------------------------------+  |           |
+|         |  | Nguyen Van A                          |  |           |
+|         |  +---------------------------------------+  |           |
+|         |                                             |           |
+|         |  Email *                  So dien thoai     |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | email@...        |  | 0123456789       | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Mat khau *           Xac nhan MK *         |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | ******           |  | ******           | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Truong dai hoc *     Nganh hoc *           |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | DH Bach Khoa    |  | CNTT             | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Nam hoc *            Ky nang               |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | Nam 4         v |  | JS, Python..     | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Upload CV (PDF, max 5MB)                   |           |
+|         |  +---------------------------------------+  |           |
+|         |  |  [File] Keo tha file hoac [Chon file] |  |           |
+|         |  +---------------------------------------+  |           |
+|         |                                             |           |
+|         |  [        Dang ky tai khoan             ]   |           |
+|         |                                             |           |
+|         |  Da co tai khoan? [Dang nhap]               |           |
+|         +---------------------------------------------+           |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S04: REGISTER COMPANY (DANG KY DOANH NGHIEP)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|         +---------------------------------------------+           |
+|         |        DANG KY DOANH NGHIEP                 |           |
+|         |                                             |           |
+|         |  Ten cong ty *        Ma dang ky KD *       |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | FPT Software     |  | 0123456789       | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Email *              Mat khau *            |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | hr@fpt.com       |  | ******           | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Nganh nghe *         Quy mo *              |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | Cong nghe     v |  | 100-500        v | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Website              Dia chi               |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | https://...      |  | Quan 7, HCM     | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  Mo ta cong ty                              |           |
+|         |  +---------------------------------------+  |           |
+|         |  |                                       |  |           |
+|         |  |                                       |  |           |
+|         |  +---------------------------------------+  |           |
+|         |                                             |           |
+|         |  Giay phep KD *       Logo cong ty          |           |
+|         |  +------------------+  +------------------+ |           |
+|         |  | [File] Chon file |  | [Img] Chon file | |           |
+|         |  +------------------+  +------------------+ |           |
+|         |                                             |           |
+|         |  [        Dang ky tai khoan             ]   |           |
+|         +---------------------------------------------+           |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S05: STUDENT DASHBOARD
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| NAVBAR: Logo | Dashboard | Bai tap | Bai nop | Ho so | Logout    |
++------------------------------------------------------------------+
+|                                                                    |
+|  Xin chao, Nguyen Minh Tuan!                                      |
+|                                                                    |
+|  +--------------+  +--------------+  +--------------+              |
+|  |    [12]      |  |    [3]       |  |    [5]       |              |
+|  |  Tong bai    |  |  Dang cho    |  |  Duoc chap   |              |
+|  |  da nop      |  |  danh gia    |  |  nhan        |              |
+|  +--------------+  +--------------+  +--------------+              |
+|                                                                    |
+|  +-- Bai nop gan day ----------------------------------------+     |
+|  |                                                            |     |
+|  |  Task Name          | Cong ty     | Diem  | Trang thai    |     |
+|  |  -------------------+-------------+-------+---------------|     |
+|  |  Build REST API     | FPT         | 85    | Interested    |     |
+|  |  React Dashboard    | Viettel     | --    | Pending       |     |
+|  |  SQL Optimization   | VNG         | 72    | Reviewed      |     |
+|  |                                                            |     |
+|  +------------------------------------------------------------+     |
+|                                                                    |
+|  [ Tim bai tap moi ]                                               |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S06: BROWSE TASKS (DUYET DANH SACH TASK)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  +-- BO LOC ------------------------------------------------+     |
+|  |  [Search] Tim kiem...     Nganh: [Tat ca v]              |     |
+|  |                           Do kho: [Tat ca v]             |     |
+|  +------------------------------------------------------------+     |
+|                                                                    |
+|  Tim thay 48 bai tap                                               |
+|                                                                    |
+|  +----------------+  +----------------+  +----------------+        |
+|  | [Company Logo] |  | [Company Logo] |  | [Company Logo] |        |
+|  |                |  |                |  |                |        |
+|  | Build REST     |  | React          |  | ML Model       |        |
+|  | API            |  | Dashboard      |  | Training       |        |
+|  |                |  |                |  |                |        |
+|  | FPT Software   |  | Viettel        |  | VNG Corp       |        |
+|  |                |  |                |  |                |        |
+|  | [Easy]         |  | [Medium]       |  | [Hard]         |        |
+|  | Deadline 30/03 |  | Deadline 15/03 |  | Deadline 20/03 |        |
+|  | 5/10 da nop    |  | 12/20 da nop   |  | 3/5 da nop     |        |
+|  |                |  |                |  |                |        |
+|  | [Xem chi tiet] |  | [Xem chi tiet] |  | [Xem chi tiet] |        |
+|  +----------------+  +----------------+  +----------------+        |
+|                                                                    |
+|  +----------------+  +----------------+  +----------------+        |
+|  |  ...card       |  |  ...card       |  |  ...card       |        |
+|  +----------------+  +----------------+  +----------------+        |
+|                                                                    |
+|  <  1  2  3  4  ...  8  >    (Phan trang)                         |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S07: TASK DETAIL (CHI TIET TASK)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  < Quay lai danh sach                                              |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  |                                                            |   |
+|  |  [Company Logo]  FPT Software                              |   |
+|  |                                                            |   |
+|  |  Build REST API for E-commerce                             |   |
+|  |                                                            |   |
+|  |  [Easy]   |   Cong nghe   |   4 gio                       |   |
+|  |                                                            |   |
+|  |  ----------------------------------------------------------+   |
+|  |                                                            |   |
+|  |  MO TA                                                     |   |
+|  |  Xay dung RESTful API cho he thong thuong mai dien tu      |   |
+|  |  bao gom quan ly san pham, gio hang, don hang...           |   |
+|  |                                                            |   |
+|  |  KET QUA MONG DOI                                          |   |
+|  |  - API endpoints hoat dong dung                            |   |
+|  |  - Code sach, co documentation                             |   |
+|  |  - Unit tests dat 80% coverage                             |   |
+|  |                                                            |   |
+|  |  ----------------------------------------------------------+   |
+|  |                                                            |   |
+|  |  Deadline: 30/03/2026                                      |   |
+|  |  Da nop: 5/10 bai                                          |   |
+|  |  Thoi gian uoc tinh: 4 gio                                 |   |
+|  |                                                            |   |
+|  |  [          NOP BAI NGAY          ]                        |   |
+|  |                                                            |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S08: SUBMIT WORK (NOP BAI)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  |                  NOP BAI: Build REST API                   |   |
+|  |                                                            |   |
+|  |  Upload file bai lam (PDF/ZIP, max 20MB) *                |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  |                                                      | |   |
+|  |  |   [File]  Keo tha file vao day                       | |   |
+|  |  |           hoac [Chon file]                           | |   |
+|  |  |                                                      | |   |
+|  |  |   [OK] bai-lam.zip (2.3MB)              [X Xoa]     | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  Cau tra loi / Giai thich                                  |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  | Toi da su dung Node.js + Express de xay dung          | |   |
+|  |  | API. Cau truc project gom...                          | |   |
+|  |  |                                                      | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  Link Portfolio / Demo                                     |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  | https://github.com/username/project                   | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  [ Huy ]                  [ Nop bai ]                     |   |
+|  |                                                            |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S09: MY SUBMISSIONS (BAI DA NOP)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  BAI NOP CUA TOI                                                   |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  | #  | Ten Task          | Cong ty   | Ngay nop | Diem | TT |   |
+|  |----+-------------------+-----------+----------+------+----|   |
+|  | 1  | Build REST API    | FPT       | 15/02    | 85   | OK |   |
+|  | 2  | React Dashboard   | Viettel   | 18/02    | --   | .. |   |
+|  | 3  | SQL Optimization  | VNG       | 20/02    | 72   | Rv |   |
+|  | 4  | Mobile App UI     | Tiki      | 22/02    | 40   | X  |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
+|  +-- Chi tiet (khi click vao row) ---------------------------+    |
+|  |                                                            |    |
+|  |  Task: Build REST API for E-commerce                       |    |
+|  |  Cong ty: FPT Software                                     |    |
+|  |  Nop luc: 15/02/2026 14:30                                 |    |
+|  |                                                            |    |
+|  |  Diem: 85/100                                               |    |
+|  |  [=============================-----]  85%                  |    |
+|  |                                                            |    |
+|  |  Feedback tu doanh nghiep:                                  |    |
+|  |  "Code structure rat tot, API design chuan RESTful.        |    |
+|  |   Can cai thien error handling va them validation."        |    |
+|  |                                                            |    |
+|  |  File da nop: bai-lam.zip                                   |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S11: COMPANY DASHBOARD
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| NAVBAR: Logo | Dashboard | Tao Task | Ung vien | XH | Goi       |
++------------------------------------------------------------------+
+|                                                                    |
+|  Dashboard Doanh nghiep - FPT Software                             |
+|                                                                    |
+|  +-----------+  +-----------+  +-----------+  +-----------+       |
+|  |   [8]     |  |   [45]    |  |   [12]    |  |  [3/5]    |       |
+|  |  Tong     |  |  Tong     |  |  Da chap  |  |  Task     |       |
+|  |  Task     |  |  bai nop  |  |  nhan     |  |  da dung  |       |
+|  +-----------+  +-----------+  +-----------+  +-----------+       |
+|                                                                    |
+|  +-- Quota su dung ------------------------------------------+    |
+|  |  Goi: Standard ($49.99/thang)                              |    |
+|  |  Task da dung: 3/5                                         |    |
+|  |  [====================-----------]  60%                     |    |
+|  |  HSD: 15/03/2026           [Nang cap goi]                  |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
+|  +-- Task gan day --------------------------------------------+    |
+|  |  Task Name       | Bai nop | Trang thai | Hanh dong        |    |
+|  |  ----------------+---------+------------+------------------|    |
+|  |  Build REST API  | 8       | Active     | [Xem] [Sua]     |    |
+|  |  React Dashboard | 12      | Active     | [Xem] [Sua]     |    |
+|  |  SQL Quiz        | 5       | Closed     | [Xem]           |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
+|  [ + Tao Task moi ]                                               |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S12: CREATE TASK (TAO TASK)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  |                  TAO BAI TAP MOI                           |   |
+|  |                                                            |   |
+|  |  Tieu de bai tap *                                        |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  | Build REST API for E-commerce                         | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  Mo ta chi tiet *                                         |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  | Xay dung RESTful API cho he thong thuong mai          | |   |
+|  |  | dien tu bao gom...                                    | |   |
+|  |  |                                                      | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  Ket qua mong doi *                                       |   |
+|  |  +------------------------------------------------------+ |   |
+|  |  | - API endpoints hoat dong dung...                     | |   |
+|  |  +------------------------------------------------------+ |   |
+|  |                                                            |   |
+|  |  Do kho *        Nganh nghe *       Thoi gian uoc tinh   |   |
+|  |  +----------+  +--------------+  +------------------+    |   |
+|  |  | Medium v |  | Cong nghe  v |  | 4 gio            |    |   |
+|  |  +----------+  +--------------+  +------------------+    |   |
+|  |                                                            |   |
+|  |  Deadline *         So luot nop toi da                    |   |
+|  |  +--------------+  +------------------+                   |   |
+|  |  | 30/03/2026   |  | 20               |                   |   |
+|  |  +--------------+  +------------------+                   |   |
+|  |                                                            |   |
+|  |  [!] Ban con 2/5 task trong thang nay (Goi Standard)      |   |
+|  |                                                            |   |
+|  |  [ Huy ]                  [ Tao bai tap ]                 |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S13: APPLICANTS (XEM BAI NOP)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  DANH SACH BAI NOP                                                 |
+|                                                                    |
+|  Loc theo Task: [Tat ca task v]     [Search] Tim kiem...           |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  | # | Sinh vien    | Task           | Ngay nop  | TT  | Act |   |
+|  |---+--------------+----------------+-----------+-----+-----|   |
+|  | 1 | Nguyen Tuan  | Build REST API | 15/02     | ..  | [E] |   |
+|  | 2 | Tran Hoa     | Build REST API | 16/02     | ..  | [E] |   |
+|  | 3 | Le Minh      | React Dashboard| 17/02     | OK  | [V] |   |
+|  | 4 | Pham Linh    | React Dashboard| 18/02     | X   | [V] |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
+|  [E] = Cham bai   [V] = Xem chi tiet                              |
+|                                                                    |
+|  <  1  2  3  >                                                     |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S14: EVALUATE SUBMISSION (CHAM BAI)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  < Quay lai danh sach                                              |
+|                                                                    |
+|  +---------------------------+  +---------------------------+     |
+|  |  THONG TIN BAI NOP       |  |  CHAM DIEM               |     |
+|  |                           |  |                           |     |
+|  |  Nguyen Minh Tuan         |  |  Diem (0-100) *          |     |
+|  |  DH Bach Khoa            |  |  +---------------------+  |     |
+|  |  tuan@email.com           |  |  | 85                  |  |     |
+|  |                           |  |  +---------------------+  |     |
+|  |  Task: Build REST API    |  |                           |     |
+|  |  Nop: 15/02/2026         |  |  Feedback *              |     |
+|  |                           |  |  +---------------------+  |     |
+|  |  -----------------------  |  |  | Code structure rat  |  |     |
+|  |                           |  |  | tot. API design     |  |     |
+|  |  File: bai-lam.zip       |  |  | chuan RESTful...    |  |     |
+|  |     [Tai xuong]           |  |  |                     |  |     |
+|  |                           |  |  +---------------------+  |     |
+|  |  Cau tra loi:             |  |                           |     |
+|  |  "Toi da su dung         |  |  Trang thai *            |     |
+|  |   Node.js + Express..."   |  |  ( ) Reviewed (Da xem)  |     |
+|  |                           |  |  (*) Interested (Q.tam) |     |
+|  |  Portfolio:               |  |  ( ) Rejected (Tu choi) |     |
+|  |  github.com/user/proj     |  |                           |     |
+|  |                           |  |  [ Luu danh gia ]       |     |
+|  +---------------------------+  +---------------------------+     |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S15: TASK RANKING (BANG XEP HANG THEO TASK)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  BANG XEP HANG THEO TASK                                           |
+|  [Lock] Yeu cau goi Standard tro len                               |
+|                                                                    |
+|  Chon Task: [Build REST API v]                                     |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  | Hang | Sinh vien      | Truong       | Diem | Score Bar    |   |
+|  |------+----------------+--------------+------+------------- |   |
+|  | #1   | Nguyen Tuan    | DH Bach Khoa | 95   | ============|   |
+|  | #2   | Tran Hoa       | DH KHTN      | 88   | ===========  |   |
+|  | #3   | Le Minh        | DH FPT       | 82   | ==========   |   |
+|  |  4   | Pham Linh      | DH Cong nghe | 75   | =========    |   |
+|  |  5   | Hoang Nam      | DH Bach Khoa | 70   | ========     |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S16: GLOBAL LEADERBOARD (BANG XEP HANG TOAN CAU)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  BANG XEP HANG TOAN CAU                                            |
+|  [Lock] Yeu cau goi Premium                                       |
+|                                                                    |
+|  +-- BO LOC NANG CAO ----------------------------------------+    |
+|  |  Truong: [Tat ca v]    Nam hoc: [Tat ca v]                |    |
+|  |  Ky nang: [Tat ca v]   Diem: [Min] - [Max]               |    |
+|  |                                     [Xuat CSV]            |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
+|  +------------------------------------------------------------+   |
+|  | Hang | Sinh vien    | Truong     | Ky nang    | DTB | Bai  |   |
+|  |------+--------------+------------+------------+-----+------|   |
+|  | #1   | Nguyen Tuan  | DH BK      | JS,Python  | 92  | 15   |   |
+|  | #2   | Tran Hoa     | DH KHTN    | Java,C++   | 89  | 12   |   |
+|  | #3   | Le Minh      | DH FPT     | React,Node | 85  | 18   |   |
+|  |  4   | Pham Linh    | DH CN      | Python,ML  | 83  | 10   |   |
+|  +------------------------------------------------------------+   |
+|                                                                    |
+|  <  1  2  3  4  5  >                                              |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S17: SUBSCRIPTION (QUAN LY GOI DANG KY)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| [NAVBAR]                                                          |
+|                                                                    |
+|  QUAN LY GOI DANG KY                                               |
+|                                                                    |
+|  +-- GOI HIEN TAI -------------------------------------------+    |
+|  |  Goi: Standard                                             |    |
+|  |  Gia: $49.99/thang                                         |    |
+|  |  Task: 3/5 da dung                                         |    |
+|  |  HSD: 15/03/2026                                           |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
+|  +-- BASIC ------+  +-- STANDARD --+  +-- PREMIUM -----+         |
+|  |  Mien phi     |  |  $49.99/th   |  |  $99.99/th     |         |
+|  |               |  |  * Hien tai  |  |                |         |
+|  |  [v] 2 task/th|  |  [v] 5 task/th|  |  [v] Unlimited|         |
+|  |  [v] Cham bai |  |  [v] Cham bai|  |  [v] Cham bai |         |
+|  |  [x] Xep hang |  |  [v] XH Task |  |  [v] XH Task  |         |
+|  |  [x] CSV      |  |  [x] XH Glob |  |  [v] XH Global|         |
+|  |               |  |  [x] CSV     |  |  [v] Xuat CSV |         |
+|  |               |  |              |  |                |         |
+|  |  [Goi hien    |  |  ---------   |  |  [Nang cap]   |         |
+|  |   tai thap]   |  |              |  |                |         |
+|  +---------------+  +--------------+  +----------------+         |
+|                                                                    |
+|  +-- LICH SU YEU CAU ----------------------------------------+    |
+|  |  Ngay       | Tu goi    | Den goi   | Trang thai          |    |
+|  |  20/01/2026 | Basic     | Standard  | Approved            |    |
+|  |  25/02/2026 | Standard  | Premium   | Pending             |    |
+|  +------------------------------------------------------------+    |
+|                                                                    |
++------------------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+S20: ADMIN DASHBOARD (4 TABS)
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------+
+| +-- SIDEBAR ----+  +-- MAIN CONTENT --------------------------+ |
+| |               |  |                                           | |
+| | [Logo]        |  |  TAB: [Dashboard] [DN] [SV] [Thanh toan] | |
+| | SkillRank     |  |                                           | |
+| | Admin         |  |  === TAB DASHBOARD ===                    | |
+| |               |  |                                           | |
+| | > Dashboard   |  |  +----+ +----+ +----+ +----+ +----+     | |
+| |   Doanh nghiep|  |  | 150| | 45 | | 80 | |200 | | 5  |     | |
+| |   Sinh vien   |  |  | SV | | DN | |Task| |Bai | |Cho |     | |
+| |   Thanh toan  |  |  +----+ +----+ +----+ +----+ +----+     | |
+| |               |  |                                           | |
+| |               |  |  Doanh thu: $2,499.50                     | |
+| |               |  |                                           | |
+| |               |  |  +-- Phan bo goi -----------------+      | |
+| |               |  |  |  Basic:    ================  30 |      | |
+| |               |  |  |  Standard: ============     10  |      | |
+| |               |  |  |  Premium:  ======            5  |      | |
+| |               |  |  +--------------------------------+      | |
+| |               |  |                                           | |
+| |               |  |  +-- DN gan day -+  +-- SV gan day --+   | |
+| |               |  |  | FPT-Standard  |  | Tuan - DH BK   |   | |
+| |               |  |  | VNG-Premium   |  | Hoa - DH KHTN  |   | |
+| | ------------- |  |  +---------------+  +----------------+   | |
+| |               |  |                                           | |
+| | Admin User    |  |  === TAB DOANH NGHIEP ===                | |
+| | [Dang xuat]   |  |  [Search] Tim kiem...                    | |
+| |               |  |  +-- Bang DN -------------------+        | |
+| |               |  |  | ID|Ten    |Email |Goi |Task|Act|      | |
+| |               |  |  | 1 |FPT    |hr@.. |Std |3/5 |Del|      | |
+| |               |  |  | 2 |VNG    |..    |Prem|8/~ |Del|      | |
+| |               |  |  +-----------------------------+        | |
+| |               |  |  < 1 2 3 >                               | |
+| |               |  |                                           | |
+| +---------------+  +------------------------------------------+ |
++------------------------------------------------------------------+
+
+
+================================================================================
+  6. DESIGN SYSTEM
+================================================================================
+
+6.1 Bang mau (Color Palette)
+-----------------------------
+
+PRIMARY COLORS:
++------------+-----------+--------------------------------------+
+| Ten        | Ma mau    | Su dung                              |
++------------+-----------+--------------------------------------+
+| Blue 500   | #3B82F6   | Primary buttons, links, active       |
+| Blue 600   | #2563EB   | Button hover                         |
+| Blue 100   | #DBEAFE   | Light background                     |
+| Purple 500 | #8B5CF6   | Accent, gradient, premium badge      |
+| Purple 600 | #7C3AED   | Accent hover                         |
++------------+-----------+--------------------------------------+
+
+STATUS COLORS:
++------------+-----------+--------------------------------------+
+| Green 500  | #10B981   | Success, approved, easy badge        |
+| Red 500    | #EF4444   | Error, rejected, delete              |
+| Yellow 500 | #F59E0B   | Warning, pending, medium badge       |
+| Orange 500 | #F97316   | Hard badge                           |
++------------+-----------+--------------------------------------+
+
+NEUTRAL COLORS:
++------------+-----------+--------------------------------------+
+| Slate 900  | #0F172A   | Headings, main text                  |
+| Slate 600  | #475569   | Body text                            |
+| Slate 400  | #94A3B8   | Placeholder, muted text              |
+| Slate 200  | #E2E8F0   | Borders, dividers                    |
+| Slate 50   | #F8FAFC   | Page background                      |
+| White      | #FFFFFF   | Card background                      |
++------------+-----------+--------------------------------------+
+
+
+6.2 Typography
+--------------
+
+FONT FAMILY: Inter (Google Fonts)
+
++--------------+--------+--------+----------------------------+
+| Style        | Size   | Weight | Su dung                    |
++--------------+--------+--------+----------------------------+
+| Heading 1    | 36px   | 800    | Hero title                 |
+| Heading 2    | 30px   | 700    | Section title              |
+| Heading 3    | 24px   | 700    | Page title                 |
+| Heading 4    | 20px   | 600    | Card title                 |
+| Body Large   | 18px   | 400    | Hero description           |
+| Body         | 16px   | 400    | Paragraph text             |
+| Body Small   | 14px   | 400    | Table content, labels      |
+| Caption      | 12px   | 500    | Badges, timestamps         |
++--------------+--------+--------+----------------------------+
+
+
+6.3 Components Library
+-----------------------
+
+BUTTONS:
+  - Primary Button:    bg-blue-600, text-white, rounded-lg
+  - Secondary Button:  bg-white, border, text-gray-700, rounded-lg
+  - Danger Button:     bg-red-600, text-white, rounded-lg
+  - Ghost Button:      bg-transparent, text-blue-600
+
+BADGES:
+  - [Easy]      bg-green-100, text-green-800
+  - [Medium]    bg-yellow-100, text-yellow-800
+  - [Hard]      bg-red-100, text-red-800
+  - [Basic]     bg-gray-100, text-gray-800
+  - [Standard]  bg-blue-100, text-blue-800
+  - [Premium]   bg-purple-100, text-purple-800
+  - [Pending]   bg-yellow-100, text-yellow-800
+  - [Approved]  bg-green-100, text-green-800
+  - [Rejected]  bg-red-100, text-red-800
+
+CARDS:
+  - bg-white, rounded-xl, shadow-md, p-6
+  - Hover: shadow-lg, transform: translateY(-2px)
+  - Glass effect: bg-white/80, backdrop-blur-md
+
+INPUTS:
+  - border-slate-300, rounded-lg, px-4, py-2.5
+  - Focus: border-blue-500, ring-2, ring-blue-200
+  - Error: border-red-500, ring-2, ring-red-200
+
+TOAST NOTIFICATIONS:
+  - Success: bg-green-500, text-white, auto-dismiss 3s
+  - Error:   bg-red-500, text-white, auto-dismiss 3s
+  - Warning: bg-yellow-500, text-white, auto-dismiss 3s
+
+MODALS:
+  - Backdrop: bg-black/50
+  - Content: bg-white, rounded-xl, shadow-2xl, max-w-md
+  - Header, body, footer sections
+  - Close: click backdrop hoac nut X
+
+
+6.4 Spacing & Grid
+--------------------
+
+SPACING SCALE (Tailwind):
++-------+---------------------------------+
+| Unit  | Su dung                         |
++-------+---------------------------------+
+| 4px   | Icon gap, inline spacing        |
+| 8px   | Compact padding                 |
+| 12px  | Input padding-y                 |
+| 16px  | Card padding, gap               |
+| 24px  | Section padding                 |
+| 32px  | Section gap                     |
+| 48px  | Section margin                  |
+| 64px  | Page section spacing            |
++-------+---------------------------------+
+
+GRID:
+  - Desktop: max-width 1280px, centered
+  - Task cards: 3 columns (lg), 2 columns (md), 1 column (sm)
+  - Dashboard stats: 4 columns (lg), 2 columns (sm)
+  - Forms: single column, max-width 640px
+
+
+================================================================================
+  7. RESPONSIVE DESIGN
+================================================================================
+
+7.1 Breakpoints
+----------------
+
++------------+-----------+-------------------------------------+
+| Breakpoint | Width     | Layout                              |
++------------+-----------+-------------------------------------+
+| Mobile     | < 640px   | Single column, hamburger menu       |
+| Tablet     | 640-1024px| 2 columns, collapsible sidebar      |
+| Desktop    | > 1024px  | Full layout, fixed sidebar (admin)  |
++------------+-----------+-------------------------------------+
+
+
+7.2 Mobile Adaptations
+-----------------------
+
+NAVBAR:
+  Desktop: Horizontal links + buttons
+  Mobile:  Hamburger menu -> slide-down panel
+
+TASK CARDS:
+  Desktop: 3-column grid
+  Tablet:  2-column grid
+  Mobile:  1-column stack
+
+DASHBOARD STATS:
+  Desktop: 4 cards in a row
+  Tablet:  2x2 grid
+  Mobile:  Vertical stack
+
+TABLES:
+  Desktop: Full table with all columns
+  Mobile:  Horizontal scroll (overflow-x-auto)
+
+FORMS:
+  Desktop: 2-column layout for related fields
+  Mobile:  Single column stack
+
+ADMIN SIDEBAR:
+  Desktop: Fixed 264px sidebar
+  Tablet:  Collapsible overlay
+  Mobile:  Hidden, toggle button
+
+
+================================================================================
+  PHU LUC A: DANH SACH API ENDPOINTS
+================================================================================
+
++--------+--------+--------------------------------------+---------------------------+
+| Nhom   | Method | Endpoint                             | Mo ta                     |
++--------+--------+--------------------------------------+---------------------------+
+| Auth   | POST   | /api/auth/register/student           | Dang ky sinh vien         |
+| Auth   | POST   | /api/auth/register/company           | Dang ky doanh nghiep      |
+| Auth   | POST   | /api/auth/login                      | Dang nhap                 |
+| Auth   | GET    | /api/auth/me                         | Lay thong tin user        |
+| Auth   | GET    | /api/auth/check-email                | Kiem tra email            |
++--------+--------+--------------------------------------+---------------------------+
+| Task   | GET    | /api/tasks                           | DS task (loc, phan trang) |
+| Task   | GET    | /api/tasks/:id                       | Chi tiet task             |
+| Task   | POST   | /api/tasks                           | Tao task (Company)        |
+| Task   | PUT    | /api/tasks/:id                       | Sua task (Company)        |
+| Task   | DELETE | /api/tasks/:id                       | Xoa task (Company)        |
+| Task   | GET    | /api/tasks/company/mine              | Task cua cong ty          |
++--------+--------+--------------------------------------+---------------------------+
+| Submit | POST   | /api/submissions/:taskId             | Nop bai (Student)         |
+| Submit | GET    | /api/submissions/mine                | Bai nop cua toi (Student) |
+| Submit | GET    | /api/submissions/company/all         | Tat ca bai nop (Company)  |
+| Submit | GET    | /api/submissions/task/:taskId        | Bai nop theo task         |
++--------+--------+--------------------------------------+---------------------------+
+| Eval   | PUT    | /api/evaluation/:submissionId        | Cham bai (Company)        |
++--------+--------+--------------------------------------+---------------------------+
+| Student| GET    | /api/student/profile                 | Ho so sinh vien           |
+| Student| PUT    | /api/student/profile                 | Cap nhat ho so            |
+| Student| GET    | /api/student/dashboard               | Dashboard SV              |
++--------+--------+--------------------------------------+---------------------------+
+| Company| GET    | /api/company/profile                 | Ho so cong ty             |
+| Company| PUT    | /api/company/profile                 | Cap nhat ho so            |
+| Company| GET    | /api/company/dashboard               | Dashboard DN              |
++--------+--------+--------------------------------------+---------------------------+
+| Sub    | GET    | /api/subscription/plans              | DS goi                    |
+| Sub    | GET    | /api/subscription/current            | Goi hien tai              |
+| Sub    | POST   | /api/subscription/upgrade            | Yeu cau nang cap          |
++--------+--------+--------------------------------------+---------------------------+
+| Board  | GET    | /api/leaderboard/task/:taskId        | XH theo task (Standard+)  |
+| Board  | GET    | /api/leaderboard/global              | XH toan cau (Premium)     |
+| Board  | GET    | /api/leaderboard/export-csv          | Xuat CSV (Premium)        |
++--------+--------+--------------------------------------+---------------------------+
+| Admin  | POST   | /api/admin/login                     | Dang nhap admin           |
+| Admin  | GET    | /api/admin/dashboard                 | Dashboard admin           |
+| Admin  | GET    | /api/admin/companies                 | DS doanh nghiep           |
+| Admin  | GET    | /api/admin/students                  | DS sinh vien              |
+| Admin  | DELETE | /api/admin/companies/:id             | Xoa DN                    |
+| Admin  | DELETE | /api/admin/students/:id              | Xoa SV                    |
+| Admin  | GET    | /api/admin/upgrade-requests          | DS yeu cau nang cap       |
+| Admin  | PUT    | /api/admin/upgrade-requests/:id      | Duyet/tu choi             |
++--------+--------+--------------------------------------+---------------------------+
+
+
+================================================================================
+  PHU LUC B: DATABASE SCHEMA
+================================================================================
+
+TABLE: students
+  id, full_name, email, password, university, major, year_of_study,
+  skills, phone, cv_path, portfolio_link, linkedin, avatar_path,
+  total_score, average_score, total_submissions, interested_count
+
+TABLE: companies
+  id, company_name, registration_number, email, password, industry,
+  company_size, website, address, description, business_license_path,
+  logo_path, subscription_plan, task_limit, tasks_used, subscription_expiry
+
+TABLE: tasks
+  id, company_id, title, description, expected_output, estimated_time,
+  deadline, difficulty, industry, max_submissions, current_submissions, status
+
+TABLE: submissions
+  id, task_id, student_id, file_path, text_answer, portfolio_link,
+  score, feedback, status, submitted_at, evaluated_at
+
+TABLE: subscription_plans
+  id, plan_name, task_limit, features, price, description
+
+TABLE: admins
+  id, username, password, full_name, created_at
+
+TABLE: upgrade_requests
+  id, company_id, current_plan, requested_plan, status,
+  admin_note, created_at, processed_at
+
+
+================================================================================
+
+  Ghi chu:
+  Tai lieu nay dung lam co so de thiet ke tren Figma.
+  Cac wireframe ASCII o tren nen duoc chuyen doi thanh design chi tiet
+  tren Figma voi day du mau sac, typography, spacing, va interaction
+  states theo Design System.
+
+================================================================================
+                      HET TAI LIEU
+================================================================================

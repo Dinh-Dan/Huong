@@ -197,22 +197,7 @@
                 </p>
 
                 <!-- CTA Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                    <a href="/FE/register-student.html"
-                       class="group relative bg-blue-600 hover:bg-blue-500 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40 hover:scale-[1.02]">
-                        <span class="flex items-center justify-center gap-2">
-                            I'm a Student
-                            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                        </span>
-                    </a>
-                    <a href="/FE/register-company.html"
-                       class="group bg-white/5 hover:bg-white/10 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-[1.02]">
-                        <span class="flex items-center justify-center gap-2">
-                            I'm a Company
-                            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                        </span>
-                    </a>
-                </div>
+                <div id="cta-buttons" class="flex flex-col sm:flex-row gap-4 justify-center mb-16"></div>
 
                 <!-- Stats -->
                 <div class="flex flex-wrap justify-center gap-8 sm:gap-16">
@@ -732,6 +717,37 @@
     <script src="/FE/assets/js/navbar.js"></script>
     <script>
         lucide.createIcons();
+
+        // CTA buttons based on login state
+        (function() {
+            const user = getUser();
+            const cta = document.getElementById('cta-buttons');
+            if (!user) {
+                cta.innerHTML = `
+                    <a href="/FE/register-student.html" class="group relative bg-blue-600 hover:bg-blue-500 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">I'm a Student <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>
+                    <a href="/FE/register-company.html" class="group bg-white/5 hover:bg-white/10 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">I'm a Company <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>`;
+            } else if (user.role === 'student') {
+                cta.innerHTML = `
+                    <a href="${pageUrl('/browse-tasks')}" class="group relative bg-blue-600 hover:bg-blue-500 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">Browse Tasks <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>
+                    <a href="${pageUrl('/student/dashboard')}" class="group bg-white/5 hover:bg-white/10 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">My Dashboard <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>`;
+            } else if (user.role === 'company') {
+                cta.innerHTML = `
+                    <a href="${pageUrl('/company/dashboard')}" class="group relative bg-blue-600 hover:bg-blue-500 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">My Dashboard <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>
+                    <a href="${pageUrl('/company/create-task')}" class="group bg-white/5 hover:bg-white/10 text-white px-10 py-4.5 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-[1.02]">
+                        <span class="flex items-center justify-center gap-2">Create Task <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+                    </a>`;
+            }
+        })();
 
         // Scroll animation (Intersection Observer)
         const observer = new IntersectionObserver((entries) => {
