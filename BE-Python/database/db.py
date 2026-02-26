@@ -2,10 +2,17 @@ import pymysql
 import os
 
 def get_connection():
+    # load connection info from environment; ensure the password is read correctly
+    host = os.getenv('DB_HOST', 'localhost')
+    user = os.getenv('DB_USER', 'root')
+    password = os.getenv('DB_PASSWORD', '')
+    # log a warning if password is empty (common misconfiguration)
+    if not password:
+        print('WARNING: DB_PASSWORD is empty; check your .env or environment variables')
     return pymysql.connect(
-        host=os.getenv('DB_HOST', 'localhost'),
-        user=os.getenv('DB_USER', 'root'),
-        password=os.getenv('DB_PASSWORD', ''),
+        host=host,
+        user=user,
+        password=password,
         database=os.getenv('DB_NAME', 'skillrank'),
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True

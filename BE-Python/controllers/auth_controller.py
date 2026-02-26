@@ -47,12 +47,24 @@ def register_student():
 
         # CV file
         cv_path = None
+        def save_upload(file, folder):
+            # ensure folder exists relative to project root
+            base = os.path.join(os.getcwd(), 'uploads', folder)
+            os.makedirs(base, exist_ok=True)
+            # sanitize filename to avoid invalid characters or traversal
+            from werkzeug.utils import secure_filename
+            name = secure_filename(file.filename)
+            if not name:
+                return None
+            name = f"{int(datetime.now().timestamp() * 1000)}-{name}"
+            dest = os.path.join(base, name)
+            file.save(dest)
+            return name
+
         if 'cv' in request.files:
             f = request.files['cv']
             if f.filename:
-                filename = f"{int(datetime.now().timestamp() * 1000)}-{f.filename}"
-                f.save(os.path.join('uploads', 'cv', filename))
-                cv_path = filename
+                cv_path = save_upload(f, 'cv')
 
         cursor = execute(
             '''INSERT INTO students (full_name, email, password, university, major, year_of_study, skills, phone, cv_path, portfolio_link, linkedin)
@@ -120,19 +132,28 @@ def register_company():
         business_license_path = None
         logo_path = None
 
+        # reuse helper defined above (in student section) - ensure import inside function
+        def save_upload(file, folder):
+            base = os.path.join(os.getcwd(), 'uploads', folder)
+            os.makedirs(base, exist_ok=True)
+            from werkzeug.utils import secure_filename
+            name = secure_filename(file.filename)
+            if not name:
+                return None
+            name = f"{int(datetime.now().timestamp() * 1000)}-{name}"
+            dest = os.path.join(base, name)
+            file.save(dest)
+            return name
+
         if 'business_license' in request.files:
             f = request.files['business_license']
             if f.filename:
-                filename = f"{int(datetime.now().timestamp() * 1000)}-{f.filename}"
-                f.save(os.path.join('uploads', 'licenses', filename))
-                business_license_path = filename
+                business_license_path = save_upload(f, 'licenses')
 
         if 'logo' in request.files:
             f = request.files['logo']
             if f.filename:
-                filename = f"{int(datetime.now().timestamp() * 1000)}-{f.filename}"
-                f.save(os.path.join('uploads', 'logos', filename))
-                logo_path = filename
+                logo_path = save_upload(f, 'logos')
 
         cursor = execute(
             '''INSERT INTO companies (company_name, registration_number, email, password, industry, company_size, website, address, description, business_license_path, logo_path)
