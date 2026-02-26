@@ -6,7 +6,7 @@
     <title>Evaluate Submission - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -21,14 +21,14 @@
         </div>
     </div>
 
-    <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/navbar.js"></script>
-    <script src="/assets/js/utils.js"></script>
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('company')) throw new Error('Not authorized');
 
         const subId = getQueryParam('id');
-        if (!subId) window.location.href = '/company/applicants';
+        if (!subId) window.location.href = pageUrl('/company/applicants');
 
         async function loadSubmission() {
             try {
@@ -46,7 +46,7 @@
                             <div><span class="text-sm text-slate-500">Skills</span><div class="font-medium">${s.skills || '-'}</div></div>
                         </div>
                         <div class="flex gap-3 mt-4">
-                            ${s.cv_path ? `<a href="/uploads/cv/${s.cv_path}" target="_blank" class="text-blue-600 hover:underline text-sm">View CV</a>` : ''}
+                            ${s.cv_path ? `<a href="${UPLOAD_BASE}/uploads/cv/${s.cv_path}" target="_blank" class="text-blue-600 hover:underline text-sm">View CV</a>` : ''}
                             ${s.student_portfolio ? `<a href="${s.student_portfolio}" target="_blank" class="text-blue-600 hover:underline text-sm">Portfolio</a>` : ''}
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                             <span class="text-sm text-slate-500">Submitted: ${formatDateTime(s.submitted_at)}</span>
                             &middot; ${statusBadge(s.status)}
                         </div>
-                        ${s.file_path ? `<div class="mb-4"><a href="/uploads/submissions/${s.file_path}" target="_blank" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-blue-100 transition font-medium text-sm">Download File</a></div>` : ''}
+                        ${s.file_path ? `<div class="mb-4"><a href="${UPLOAD_BASE}/uploads/submissions/${s.file_path}" target="_blank" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-blue-100 transition font-medium text-sm">Download File</a></div>` : ''}
                         ${s.text_answer ? `<div class="mb-4"><h3 class="font-semibold text-sm text-slate-500 mb-1">Text Answer</h3><div class="bg-slate-50 p-4 rounded-xl whitespace-pre-wrap">${s.text_answer}</div></div>` : ''}
                         ${s.portfolio_link ? `<div class="mb-4"><h3 class="font-semibold text-sm text-slate-500 mb-1">Portfolio Link</h3><a href="${s.portfolio_link}" target="_blank" class="text-blue-600 hover:underline">${s.portfolio_link}</a></div>` : ''}
                     </div>

@@ -1,4 +1,24 @@
-const API_BASE = '/api';
+// Chế độ chạy: 'apache' hoặc 'liveserver'
+// Đổi thành 'apache' khi deploy qua Apache/XAMPP
+const RUN_MODE = 'liveserver';
+const API_BASE = RUN_MODE === 'liveserver' ? 'http://localhost:5000/api' : '/api';
+
+// Helper: URL cho file uploads (ảnh, CV, submissions)
+const UPLOAD_BASE = RUN_MODE === 'liveserver' ? 'http://localhost:5000' : '';
+
+// Prefix thư mục FE khi Live Server serve từ thư mục cha
+const FE_PREFIX = RUN_MODE === 'liveserver' ? '/FE' : '';
+
+// Helper: thêm prefix FE + .html cho Live Server
+function pageUrl(path) {
+  if (RUN_MODE !== 'liveserver') return path;
+  // Bỏ qua nếu đã có extension, hoặc là thư mục (kết thúc bằng /)
+  if (path.includes('.') || path.endsWith('/')) return FE_PREFIX + path;
+  // Giữ query string
+  const [pathname, query] = path.split('?');
+  return query ? `${FE_PREFIX}${pathname}.html?${query}` : `${FE_PREFIX}${pathname}.html`;
+}
+
 
 function getToken() {
   return localStorage.getItem('token');
@@ -51,7 +71,7 @@ async function apiRequest(method, endpoint, data = null, isFormData = false) {
       // Don't redirect if we're on the login page (login attempt failed)
       if (response.status === 401 && getToken()) {
         clearAuth();
-        window.location.href = '/login';
+        window.location.href = pageUrl('/login');
         return;
       }
       throw { status: response.status, ...result };
@@ -83,15 +103,15 @@ function apiDelete(endpoint) {
 // Redirect helpers
 function requireAuth(role = null) {
   if (!isLoggedIn()) {
-    window.location.href = '/login';
+    window.location.href = pageUrl('/login');
     return false;
   }
   if (role) {
     const user = getUser();
     if (user.role !== role) {
-      window.location.href = user.role === 'student'
+      window.location.href = pageUrl(user.role === 'student'
         ? '/student/dashboard'
-        : '/company/dashboard';
+        : '/company/dashboard');
       return false;
     }
   }
@@ -101,8 +121,8 @@ function requireAuth(role = null) {
 function redirectIfLoggedIn() {
   if (isLoggedIn()) {
     const user = getUser();
-    window.location.href = user.role === 'student'
+    window.location.href = pageUrl(user.role === 'student'
       ? '/student/dashboard'
-      : '/company/dashboard';
+      : '/company/dashboard');
   }
 }

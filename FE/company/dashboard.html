@@ -6,7 +6,7 @@
     <title>Company Dashboard - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -17,7 +17,7 @@
                 <h1 class="text-3xl font-bold mb-1">Company Dashboard</h1>
                 <p class="text-slate-600" id="welcome-msg">Welcome back!</p>
             </div>
-            <a href="/company/create-task" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+            <a href="/FE/company/create-task.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
                 + Create Task
             </a>
         </div>
@@ -47,7 +47,7 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div class="p-6 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="text-xl font-bold">Recent Tasks</h2>
-                <a href="/company/applicants" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View All Applicants &rarr;</a>
+                <a href="/FE/company/applicants.html" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View All Applicants &rarr;</a>
             </div>
             <div id="recent-tasks" class="divide-y divide-slate-100">
                 <div class="p-6 text-center text-slate-500">Loading...</div>
@@ -55,9 +55,9 @@
         </div>
     </div>
 
-    <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/navbar.js"></script>
-    <script src="/assets/js/utils.js"></script>
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('company')) throw new Error('Not authorized');
 
@@ -76,7 +76,7 @@
 
                 const container = document.getElementById('recent-tasks');
                 if (data.recent_tasks.length === 0) {
-                    container.innerHTML = '<div class="p-6 text-center text-slate-500">No tasks yet. <a href="/company/create-task" class="text-blue-600">Create your first task</a>!</div>';
+                    container.innerHTML = `<div class="p-6 text-center text-slate-500">No tasks yet. <a href="${pageUrl('/company/create-task')}" class="text-blue-600">Create your first task</a>!</div>`;
                     return;
                 }
 
@@ -89,7 +89,7 @@
                         <div class="flex items-center gap-3">
                             ${statusBadge(t.status)}
                             ${difficultyBadge(t.difficulty)}
-                            <a href="/company/applicants?taskId=${t.id}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View &rarr;</a>
+                            <a href="${pageUrl('/company/applicants')}?taskId=${t.id}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View &rarr;</a>
                         </div>
                     </div>
                 `).join('');

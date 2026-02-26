@@ -6,7 +6,7 @@
     <title>Student Dashboard - SkillRank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/FE/assets/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
     <nav id="navbar" class="fixed w-full z-50 glass-effect border-b border-slate-200"></nav>
@@ -52,7 +52,7 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div class="p-6 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="text-xl font-bold">Recent Submissions</h2>
-                <a href="/student/my-submissions" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View All &rarr;</a>
+                <a href="/FE/student/my-submissions.html" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View All &rarr;</a>
             </div>
             <div id="recent-submissions" class="divide-y divide-slate-100">
                 <div class="p-6 text-center text-slate-500">Loading...</div>
@@ -61,10 +61,10 @@
 
         <!-- Quick Actions -->
         <div class="mt-8 flex gap-4">
-            <a href="/browse-tasks" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
+            <a href="/FE/browse-tasks.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30">
                 Browse Tasks
             </a>
-            <a href="/student/profile" class="bg-white hover:bg-slate-50 text-slate-700 px-6 py-3 rounded-xl font-semibold transition border border-slate-200">
+            <a href="/FE/student/profile.html" class="bg-white hover:bg-slate-50 text-slate-700 px-6 py-3 rounded-xl font-semibold transition border border-slate-200">
                 Edit Profile
             </a>
         </div>
@@ -92,9 +92,9 @@
         </div>
     </div>
 
-    <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/navbar.js"></script>
-    <script src="/assets/js/utils.js"></script>
+    <script src="/FE/assets/js/api.js"></script>
+    <script src="/FE/assets/js/navbar.js"></script>
+    <script src="/FE/assets/js/utils.js"></script>
     <script>
         if (!requireAuth('student')) throw new Error('Not authorized');
 
@@ -170,7 +170,7 @@
 
                 const container = document.getElementById('recent-submissions');
                 if (data.recent_submissions.length === 0) {
-                    container.innerHTML = '<div class="p-6 text-center text-slate-500">No submissions yet. <a href="/browse-tasks" class="text-blue-600">Browse tasks</a> to get started!</div>';
+                    container.innerHTML = `<div class="p-6 text-center text-slate-500">No submissions yet. <a href="${pageUrl('/browse-tasks')}" class="text-blue-600">Browse tasks</a> to get started!</div>`;
                     return;
                 }
 

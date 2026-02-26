@@ -19,21 +19,21 @@ function renderNavbar() {
   if (!user) {
     // Public navbar
     links = `
-      <a href="/" class="${textColor} font-medium transition">Home</a>
-      <a href="/browse-tasks" class="${textColor} font-medium transition">Browse Tasks</a>
-      <a href="/pricing" class="${textColor} font-medium transition">Pricing</a>
+      <a href="${FE_PREFIX}/" class="${textColor} font-medium transition">Home</a>
+      <a href="${pageUrl('/browse-tasks')}" class="${textColor} font-medium transition">Browse Tasks</a>
+      <a href="${pageUrl('/pricing')}" class="${textColor} font-medium transition">Pricing</a>
     `;
     authButtons = `
-      <a href="/login" class="${loginColor} font-medium px-4 py-2 transition">Login</a>
-      <a href="/register-student" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-semibold transition shadow-lg shadow-blue-600/30">Register</a>
+      <a href="${pageUrl('/login')}" class="${loginColor} font-medium px-4 py-2 transition">Login</a>
+      <a href="${pageUrl('/register-student')}" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-semibold transition shadow-lg shadow-blue-600/30">Register</a>
     `;
   } else if (user.role === 'student') {
     // Student navbar
     links = `
-      <a href="/" class="${textColor} font-medium transition">Home</a>
-      <a href="/browse-tasks" class="${textColor} font-medium transition">Browse Tasks</a>
-      <a href="/student/my-submissions" class="${textColor} font-medium transition">My Submissions</a>
-      <a href="/student/profile" class="${textColor} font-medium transition">Profile</a>
+      <a href="${FE_PREFIX}/" class="${textColor} font-medium transition">Home</a>
+      <a href="${pageUrl('/browse-tasks')}" class="${textColor} font-medium transition">Browse Tasks</a>
+      <a href="${pageUrl('/student/my-submissions')}" class="${textColor} font-medium transition">My Submissions</a>
+      <a href="${pageUrl('/student/profile')}" class="${textColor} font-medium transition">Profile</a>
     `;
     authButtons = `
       <span class="${isDark ? 'text-slate-400' : 'text-slate-500'} text-sm mr-2">Hi, ${user.name}</span>
@@ -42,11 +42,11 @@ function renderNavbar() {
   } else if (user.role === 'company') {
     // Company navbar
     links = `
-      <a href="/company/dashboard" class="${textColor} font-medium transition">Dashboard</a>
-      <a href="/company/create-task" class="${textColor} font-medium transition">Create Task</a>
-      <a href="/company/applicants" class="${textColor} font-medium transition">Applicants</a>
-      <a href="/company/subscription" class="${textColor} font-medium transition">Subscription</a>
-      <a href="/company/profile" class="${textColor} font-medium transition">Profile</a>
+      <a href="${pageUrl('/company/dashboard')}" class="${textColor} font-medium transition">Dashboard</a>
+      <a href="${pageUrl('/company/create-task')}" class="${textColor} font-medium transition">Create Task</a>
+      <a href="${pageUrl('/company/applicants')}" class="${textColor} font-medium transition">Applicants</a>
+      <a href="${pageUrl('/company/subscription')}" class="${textColor} font-medium transition">Subscription</a>
+      <a href="${pageUrl('/company/profile')}" class="${textColor} font-medium transition">Profile</a>
     `;
     authButtons = `
       <span class="${isDark ? 'text-slate-400' : 'text-slate-500'} text-sm mr-2">${user.name}</span>
@@ -57,7 +57,7 @@ function renderNavbar() {
   nav.innerHTML = `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
-        <a href="/" class="flex items-center gap-2">
+        <a href="${FE_PREFIX}/" class="flex items-center gap-2">
           <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
@@ -96,7 +96,7 @@ function toggleMobileMenu() {
 
 function logout() {
   clearAuth();
-  window.location.href = '/login';
+  window.location.href = pageUrl('/login');
 }
 
 // Auto-render on load
